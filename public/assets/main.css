@@ -1,0 +1,37 @@
+@import './base.css';
+:root {
+  --padding-inline: 30px;
+  --content-max-width: 1240px;
+}
+#app,
+.full-width,
+main {
+  display: grid;
+  grid-template-columns:
+    [full-width-start] minmax(var(--padding-inline), 1fr) [content-start] min(
+      100% - (var(--padding-inline) * 2),
+      var(--content-max-width)
+    )
+    [content-end] minmax(var(--padding-inline), 1fr) [full-width-end];
+}
+#app > *:not(.full-width),
+.full-width > *:not(.full-width),
+main > *:not(.full-width) {
+  grid-column: content;
+}
+#app > .full-width,
+main > .full-width {
+  grid-column: full-width;
+}
+@media (min-width: 1024px) {
+  /* body {
+    display: flex;
+    place-items: center;
+  } */
+
+  /* #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  } */
+}

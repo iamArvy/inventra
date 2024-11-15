@@ -30,6 +30,10 @@ expect()->extend('toBeOne', function () {
     return $this->toBe(1);
 });
 
+expect()->extend('toBeNull', function () {
+    return $this->toBe(null);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Functions
@@ -44,4 +48,29 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function create_user($attributes = [])
+{
+    return \App\Models\User::factory()->create($attributes);
+}
+
+function create_store($attributes = [])
+{
+    $user = create_user();
+    return \App\Models\Store::factory()->create(['owner_id' => $user->id]);
+}
+
+function create_product($attributes = [])
+{
+    $category = \App\Models\Category::factory()->create();
+    $store = create_store();
+    return \App\Models\Product::factory()->create(['store_id' => $store->id, 'category_id' => $category->id]);
+}
+
+function add_items_to_cart($user, $quantity = 1)
+{
+    $product = create_product();
+    return $user->cart()->create(['product_id' => $product->id,'quantity' => $quantity]);
+    // return \App\Models\Cart::factory()->create(['user_id' => $user->id, 'product_id' => $product->id, 'quantity' => $quantity]);
 }

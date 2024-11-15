@@ -9,17 +9,16 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     use HasApiTokens;
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
-
+    use HasRoles;
     /**
      * The attributes that are mass assignable.
      *
@@ -63,5 +62,47 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // protected function getPermissionsAttribute()
+    // {
+    //     return $this->roles->flatMap(function ($role) {
+    //         return $role->permissions;
+    //     })->unique()->pluck('name');
+    // }
+
+    // protected function getRolesAttribute()
+    // {
+    //     return $this->roles->pluck('name');
+    // }
+
+    // protected function getIsAdminAttribute()
+    // {
+    //     return $this->hasRole('admin');
+    // }
+
+    public function store()
+    {
+        return $this->hasOne(Store::class, 'owner_id');
+    }
+
+    public function cart()
+    {
+        return $this->hasMany(Cart::class, 'user_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function cartQuantity()
+    {
+        return $this->cart->count();
+    }
+
+    public function cartIsEmpty()
+    {
+        return $this->cartQuantity === 0;
     }
 }

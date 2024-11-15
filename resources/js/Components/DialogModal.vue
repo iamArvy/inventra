@@ -1,9 +1,10 @@
 <script setup>
+// import { type } from 'os';
 import Modal from './Modal.vue';
 
 const emit = defineEmits(['close']);
 
-defineProps({
+const props = defineProps({
     show: {
         type: Boolean,
         default: false,
@@ -16,10 +17,20 @@ defineProps({
         type: Boolean,
         default: true,
     },
+    close : Function,
+    title:{
+        type: String,
+        default: 'Modal'
+    }
 });
 
 const close = () => {
     emit('close');
+};
+const emitClose = () => {
+    if (props.close) {
+        props.close(); // Call the passed close function
+    }
 };
 </script>
 
@@ -30,10 +41,12 @@ const close = () => {
         :closeable="closeable"
         @close="close"
     >
+    
         <div class="px-6 py-4">
-            <div class="text-lg font-medium text-gray-900">
-                <slot name="title" />
-            </div>
+            <header class="text-lg font-medium text-gray-900">
+                <h1>{{ title }}</h1>
+                <button @click="emitClose">Close</button>
+            </header>
 
             <div class="mt-4 text-sm text-gray-600">
                 <slot name="content" />
@@ -45,3 +58,11 @@ const close = () => {
         </div>
     </Modal>
 </template>
+
+<style scoped>
+header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+</style>
