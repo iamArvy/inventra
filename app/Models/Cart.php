@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Cart extends Model
 {
     use HasFactory;
-    protected $fillable = ['product_id', 'user_id', 'quantity'];
+    protected $fillable = ['quantity'];
     protected $table = 'cartitems';
+    
     public function product()
     {
         return $this->belongsTo(Product::class);
@@ -23,27 +24,6 @@ class Cart extends Model
     public function getTotalPriceAttribute()
     {
         return $this->quantity * $this->product->price;
-    }
-
-    public function reduceQuantity(int $amount)
-    {
-        if($this->quantity < $amount){
-            throw new \Exception('Not enough stock available');
-        }
-
-        $this->quantity -= $amount;
-        $this->save();
-    }
-
-    public function increaseQuantity(int $amount)
-    {
-        $this->quantity += $amount;
-        $this->save();
-    }
-
-    public function variant()
-    {
-        return Variant::findorfail($this->variant_id);
     }
 
     public function total()

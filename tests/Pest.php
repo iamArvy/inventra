@@ -63,14 +63,12 @@ function create_store($attributes = [])
 
 function create_product($attributes = [])
 {
-    $category = \App\Models\Category::factory()->create();
-    $store = create_store();
-    return \App\Models\Product::factory()->create(['store_id' => $store->id, 'category_id' => $category->id]);
+    return \App\Models\Product::factory()->create(['stock' => 2, 'is_available' => true]);
 }
 
-function add_items_to_cart($user, $quantity = 1)
+function add_items_to_cart($id)
 {
-    $product = create_product();
-    return $user->cart()->create(['product_id' => $product->id,'quantity' => $quantity]);
+    return \App\Models\Cart::factory()->create(['user_id'=>$id]);
+    // return $user->cart()->create(['product_id' => $product->id,'quantity' => $quantity]);
     // return \App\Models\Cart::factory()->create(['user_id' => $user->id, 'product_id' => $product->id, 'quantity' => $quantity]);
 }

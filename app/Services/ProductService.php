@@ -29,14 +29,6 @@ class ProductService
         return $product;
     }
 
-    public function addtocart($user, $data){
-        if(!$user) throw new Exception("Error Processing Request", 1);
-        $product = $this->productRepo->find($data['product_id']);
-        if(!$product) throw new ModelNotFoundException('Product not found.');
-        if($product->quantity < $data['quantity']) throw new CustomException('Quantity must be less than or equal to product quantity.');
-        if(!$product->is_available) throw new CustomException('Product is not available.');
-        $user->cart()->create($data);
-    }
 
     public function uploadImages($images){
         $imagePaths = [];
@@ -50,6 +42,22 @@ class ProductService
     public function create($store, $data)
     {
         $this->productRepo->create($store, $data);
+    }
+
+    public function reduceStock($product, int $amount)
+    {
+        if ($product->stock < $amount) {
+            throw new CustomException('Not enough stock available');
+        }
+
+        $product->stock -= $amount;
+        $product->save();
+    }
+
+    public function increaseStock($product, int $amount)
+    {
+        $product->stock += $amount;
+        $product->save();
     }
     
 }

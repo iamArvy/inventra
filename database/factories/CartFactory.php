@@ -18,7 +18,7 @@ class CartFactory extends Factory
     {
         return [
             'user_id' => \App\Models\User::factory()->create()->id,
-            'product_id' => \App\Models\Product::factory()->create()->id,
+            'product_id' => \App\Models\Product::factory()->create(['is_available' => true])->id,
             'quantity' => fake()->numberBetween(1, 10),
         ];
     }

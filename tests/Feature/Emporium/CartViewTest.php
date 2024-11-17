@@ -5,7 +5,8 @@ use Inertia\Testing\AssertableInertia as Assert;
 test('Cart page can be rendered', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
-    $response = $this->get('/cart');
+    $response = $this->get(route('cart.index'));
+    // dd($response);
     $response->assertInertia(function (Assert $page) {
         $page->component('Emporium/Cart');
     });
@@ -14,10 +15,10 @@ test('Cart page can be rendered', function () {
 
 test('User can see cart items', function(){
     $user = User::factory()->create();
-    $item = add_items_to_cart($user, 2);
+    $item = add_items_to_cart($user->id);
     $this->actingAs($user);
-    $cartItems = $user->cart()->with('product')->get();
-    $response = $this->get('/cart');
+    $cartItems = $user->cart()->get();
+    $response = $this->get(route('cart.index'));
     expect($cartItems[0]->id)->toEqual($item->id);
     $response->assertInertia(function (Assert $page) use ($cartItems)  {
         $page->component('Emporium/Cart')

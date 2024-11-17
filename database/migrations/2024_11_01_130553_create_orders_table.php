@@ -14,16 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->decimal('total_price', 10, 2);
             $table->enum('status', ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])->default('pending');
-            $table->text('delivery_address');
-            $table->enum('delivery_type', ['door', 'pickup']);
-            $table->string('receipient_name');
-            $table->string('receipient_number');
-            $table->enum('payment_method', ['card', 'fragments']);
-            $table->enum('payment_status', ['pending', 'fail', 'success'])->default('pending');
-            $table->dateTime('shipping_date')->nullable();
-            $table->dateTime('delivery_date')->nullable();
             $table->timestamps();
         });
 
@@ -43,5 +34,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('orders');
+        Schema::dropIfExists('order_items');
     }
 };

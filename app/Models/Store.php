@@ -11,11 +11,14 @@ class Store extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'address',
+        'city',
+        'state',
+        'country',
         'phone',
         'email',
-        'website',
-        'owner_id'
+        'logo',
     ];
 
     public function owner()
@@ -26,6 +29,11 @@ class Store extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function orders()
+    {
+        return $this->products->orders();
     }
 
 }

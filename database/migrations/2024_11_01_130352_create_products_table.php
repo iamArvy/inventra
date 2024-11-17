@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('icon')->nullable();
             $table->string('image')->nullable();
+            $table->string('slug')->nullable()->unique();
             $table->timestamps();
         });
 
@@ -27,9 +28,10 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->foreignId('store_id')->constrained('stores')->onDelete('cascade');
             $table->decimal('price', 8, 2);
-            $table->integer('quantity')->default(0);
+            $table->integer('stock')->default(0);
             $table->boolean('is_available')->default(true);
-            $table->string('slug')->unique();
+            $table->string('slug')->nullable()->unique();
+            $table->json('additional_information')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

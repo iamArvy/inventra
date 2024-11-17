@@ -11,6 +11,8 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Auth\Access\AuthorizationException;
 use App\Exceptions\CustomException;
+// use App\Http\Requests\CreateCartRequest;
+
 // use App\Exceptions\ModelNotFoundException;
 
 class CartController extends Controller
@@ -37,17 +39,33 @@ class CartController extends Controller
         }
     }
 
+    public function add(CreateCartRequest $request)
+    {
+        $validated = $request->validated();
+        $user = $this->user();
+        try {
+            $this->cartService->add($user, $validated);
+            return back()->with('success', 'Product added to cart successfully');
+        }catch (CustomException $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }catch (ModelNotFoundException $e) {
+            return back()->withErrors(['error' => 'Product not found']);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Something went wrong']);
+        }
+    }
+
     public function update(Request $request)
     {
-        $id = $request->get('cart_id');
+        $id = $request->get('item');
         $user = $this->user();
         $validated = $request->validate([
             'quantity' => 'required|integer|min:1',
         ]);
         $quantity = $request->get('quantity');
         try {
-            $cart = $this->cartService->get($id, $user);
-            $this->cartService->changeQuantity($cart, $quantity);
+            // $cart = $this->cartService->get($id, $user);
+            $this->cartService->changeQuantity($user, $id, $quantity);
             return redirect()->back()->with('success', 'Cart item updated successfully.');
         }catch(ModelNotFoundException $e){
             return back()->withErrors(['error' => $e->getMessage()]);
@@ -63,8 +81,7 @@ class CartController extends Controller
         $id = $request->get('item');
         $user = $this->user();
         try{
-            $item = $this->cartService->get($id, $user);
-            $item->delete();
+            $this->cartService->remove($user, $id);
             return back()->with('success', 'Item removed from cart.');
         }catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => $e->getMessage()]);

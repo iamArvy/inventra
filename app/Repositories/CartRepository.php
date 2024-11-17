@@ -1,18 +1,14 @@
 <?php
 namespace App\Repositories;
 
-use App\Models\Cart;
-
+// use App\Models\Cart;
+// use App\Models\Product;
+// use Illuminate\Support\Facades\Auth;
 class CartRepository
 {
-    public function all($user)
-    {
-        return $user->cart()->with('product')->get();
-    }
-
     public function find($id, $user)
     {
-        return $user->cart()->find($id);
+        return $user->cart()->wherePivot('product_id', $id)->first();
     }
 
 
@@ -25,11 +21,5 @@ class CartRepository
         }else{
             $cart->reduceQuantity($amount);
         }
-    }
-
-    public function delete($item)
-    {
-        $item->product()->increaseQuantity($item->quantity);
-        return $item->delete();
     }
 }
