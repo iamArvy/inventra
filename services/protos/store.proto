@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package store;
+
+service StoreService {
+  rpc healthCheck (Empty) returns (HealthCheckResponse) {}
+  rpc GetStoreById (StoreById) returns (Store) {}
+  rpc getAllStores (Empty) returns (StoreList) {}
+  rpc Create (StoreInput) returns (Store) {}
+  rpc Update (StoreInput) returns (Store) {}
+  rpc Delete (StoreById) returns (Empty) {}
+  rpc FindByName (StoreByName) returns (StoreList) {}
+  rpc ActivateStore (StoreById) returns (Empty) {}
+  rpc DeactivateStore (StoreById) returns (Empty) {}
+  rpc findByOwnerId (StoreById) returns (StoreList) {}
+  rpc FindStoresByStatus (StoreById) returns (StoreList) {}
+  
+}
+
+
+message HealthCheckResponse {
+  string status = 1;
+}
+message Empty {}
+
+message StoreById {
+  string id = 1;
+}
+
+message Store {
+  string id = 1;
+  string name = 2;
+}
+message StoreList {
+  repeated Store stores = 1;
+}
+message StoreByName {
+  string name = 1;
+}
+message StoreInput {
+  string name = 1;
+}
