@@ -1,21 +1,19 @@
-import { Field, InputType, PartialType } from '@nestjs/graphql';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
-
-@InputType()
+import { PartialType } from '@nestjs/mapped-types';
 export class CreateCategoryInput {
-  @ApiProperty({ description: 'Name of the product' })
-  @IsString()
-  @IsNotEmpty()
-  @Field(() => String)
   name: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ description: 'Name of the product' })
-  @Field(() => String)
   description: string;
 }
 
-@InputType()
-export class UpdateCategoryInput extends PartialType(CreateCategoryInput) {}
+export class FindCategoryInput {
+  orderBy?: {
+    name?: 'asc' | 'desc';
+    created_at?: 'asc' | 'desc';
+    updated_at?: 'asc' | 'desc';
+  };
+  skip?: number;
+  take?: number;
+}
+
+export class UpdateCategoryInput extends PartialType(CreateCategoryInput) {
+  id: string;
+}

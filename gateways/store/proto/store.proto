@@ -1,0 +1,83 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package store;
+
+service StoreService {
+  rpc Health (google.protobuf.Empty) returns (HealthCheckResponse) {}
+  rpc Create (CreateStoreInput) returns (Store) {}
+  rpc GetById (StoreById) returns (Store) {}
+  rpc GetByOwner (StoreById) returns (Store) {}
+  rpc GetActive (google.protobuf.Empty) returns (StoreList) {}
+  rpc GetInactive (google.protobuf.Empty) returns (StoreList) {}
+  rpc GetPending (google.protobuf.Empty) returns (StoreList) {}
+  rpc List (google.protobuf.Empty) returns (StoreList) {}
+  rpc Update (UpdateStoreInput) returns (Store) {}
+  rpc Activate (StoreById) returns (google.protobuf.Empty) {}
+  rpc Deactivate (StoreById) returns (google.protobuf.Empty) {}  
+}
+
+
+message HealthCheckResponse {
+  string status = 1;
+}
+
+message StoreById {
+  string id = 1;
+}
+
+message Store {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string location = 4;   
+  string website = 5;
+  string phone = 6;
+  string email = 7;
+  string owner_id = 8;
+  string status = 9; // active, inactive, pending
+  string created_at = 10;
+  string updated_at = 11;
+  string deleted_at = 12;
+  string logo_url = 13; // URL to the store's logo
+}
+
+message StoreList {
+  repeated Store stores = 1;
+}
+
+message StoreByName {
+  string name = 1;
+}
+
+message StoreInput {
+  string name = 1;
+}
+
+message StoreData {
+  string name = 1;
+  optional string description = 2;
+  optional string location = 3;   
+  optional string website = 4;
+  optional string phone = 5;
+  optional string email = 6;
+}
+
+message PartialStoreData {
+  optional string name = 1;
+  optional string description = 2;
+  optional string location = 3;   
+  optional string website = 4;
+  optional string phone = 5;
+  optional string email = 6;
+}
+
+message CreateStoreInput{
+  string owner_id = 1;
+  StoreData data= 2;
+}
+
+message UpdateStoreInput{
+  string owner_id = 1;
+  PartialStoreData data = 2;
+}

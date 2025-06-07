@@ -1,0 +1,43 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package store;
+
+service StoreService {
+  rpc healthCheck (google.protobuf.Empty) returns (HealthCheckResponse) {}
+  rpc GetStoreById (StoreById) returns (Store) {}
+  rpc getAllStores (google.protobuf.Empty) returns (StoreList) {}
+  rpc Create (StoreInput) returns (Store) {}
+  rpc Update (StoreInput) returns (Store) {}
+  rpc Delete (StoreById) returns (google.protobuf.Empty) {}
+  rpc FindByName (StoreByName) returns (StoreList) {}
+  rpc ActivateStore (StoreById) returns (google.protobuf.Empty) {}
+  rpc DeactivateStore (StoreById) returns (google.protobuf.Empty) {}
+  rpc findByOwnerId (StoreById) returns (StoreList) {}
+  rpc FindStoresByStatus (StoreById) returns (StoreList) {}
+  
+}
+
+
+message HealthCheckResponse {
+  string status = 1;
+}
+message Empty {}
+
+message StoreById {
+  string id = 1;
+}
+
+message Store {
+  string id = 1;
+  string name = 2;
+}
+message StoreList {
+  repeated Store stores = 1;
+}
+message StoreByName {
+  string name = 1;
+}
+message StoreInput {
+  string name = 1;
+}

@@ -1,59 +1,48 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
+import { GrpcMethod } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductInput, UpdateProductInput } from './dto/product.inputs';
-import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
-import { ProductResponse } from './dto/product.response';
-import { RestAuthGuard } from 'src/guards';
+import {
+  CreateProductInput,
+  FindProductInput,
+  UpdateProductInput,
+} from './dto/product.inputs';
 
-@Controller('product')
+@Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @UseGuards(RestAuthGuard)
-  @ApiOkResponse({
-    description: 'Created Product',
-    type: ProductResponse,
-  })
-  @ApiBody({ type: CreateProductInput })
-  @Put('create')
-  async createProduct(@Body() data: CreateProductInput) {
-    return await this.productService.createProduct('teststoreid', data);
+  @GrpcMethod()
+  async create(data: CreateProductInput) {
+    return await this.productService.create(data);
   }
 
-  @Get(':id')
-  getProduct(@Param('id') id: string) {
-    return this.productService.getProduct(id);
+  @GrpcMethod()
+  get({ id }: { id: string }) {
+    return this.productService.get(id);
   }
 
-  @Get('store/:id')
-  getStoreProducts(@Param('id') sid: string) {
-    return this.productService.getStoreProducts(sid);
+  @GrpcMethod()
+  getStoreProducts({ id }: { id: string }) {
+    return this.productService.getStoreProducts(id);
   }
 
-  @Get('category/:id')
-  getCategoryProducts(@Param('id') id: string) {
+  @GrpcMethod()
+  getCategoryProducts({ id }: { id: string }) {
     return this.productService.getProductsByCategory(id);
   }
 
-  @UseGuards(RestAuthGuard)
-  @ApiBody({ type: CreateProductInput })
-  @Patch('update/:id')
-  updateProduct(@Param('id') id: string, @Body() data: UpdateProductInput) {
-    return this.productService.updateProduct(id, data);
+  @GrpcMethod()
+  list(data: FindProductInput) {
+    return this.productService.getProducts(data);
   }
 
-  @UseGuards(RestAuthGuard)
-  @Delete(':id/delete')
-  deleteProduct(@Param('id') id: string) {
-    return this.productService.deleteProduct(id);
+  @GrpcMethod()
+  update(data: UpdateProductInput) {
+    return this.productService.update(data);
+  }
+
+  @GrpcMethod()
+  delete({ id }: { id: string }) {
+    return this.productService.delete(id);
   }
 }

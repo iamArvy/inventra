@@ -27,21 +27,10 @@ model Store {
   email       String?
   created_at  DateTime    @default(now())
   updated_at  DateTime    @updatedAt
-  Category    Category?   @relation(fields: [category_id], references: [id])
-  category_id String?
 }
 
 enum StoreStatus {
   ACTIVE
   INACTIVE
   PENDING
-}
-
-model Category {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  stores      Store[]
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
 }

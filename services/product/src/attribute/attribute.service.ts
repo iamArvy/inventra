@@ -1,35 +1,66 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { AttributeInput, UpdateAttributeInput } from './dto';
+import {
+  CreateAttributeInput,
+  FindAttributeInput,
+  UpdateAttributeInput,
+} from './dto';
+import { AttributeRepository } from './attribute.repository';
 
 @Injectable()
 export class AttributeService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private repo: AttributeRepository) {}
 
-  async create(variant_id: string, data: AttributeInput) {
-    const { key, value } = data;
-    const attribute = await this.prisma.variantAttributes.create({
-      data: { key, value, variant_id },
+  async create(data: CreateAttributeInput) {
+    const { variant_id, key, value } = data;
+    const attribute = await this.repo.create({
+      key,
+      value,
+      variant: {
+        connect: {
+          id: variant_id,
+        },
+      },
     });
 
     return attribute;
   }
 
-  async update(id: string, data: UpdateAttributeInput) {
-    const { key, value } = data;
-    const attribute = await this.prisma.variantAttributes.update({
-      where: { id },
-      data: { key, value },
+  async findById(id: string) {
+    const attribute = await this.repo.findById(id);
+    return attribute;
+  }
+
+  async findByVariantId(variant_id: string) {
+    const attributes = await this.repo.find({
+      where: {
+        variant_id,
+      },
     });
+    return attributes;
+  }
+
+  async find(data: FindAttributeInput) {
+    const { variant_id, orderBy, skip, take } = data;
+    const attributes = await this.repo.find({
+      where: {
+        variant_id,
+      },
+      orderBy,
+      skip,
+      take,
+    });
+    return attributes;
+  }
+
+  async update(data: UpdateAttributeInput) {
+    const { id, key, value } = data;
+    const attribute = await this.repo.update(id, { key, value });
 
     return attribute;
   }
 
   async delete(id: string) {
-    const attribute = await this.prisma.variantAttributes.delete({
-      where: { id },
-    });
-
+    const attribute = await this.repo.delete(id);
     return attribute;
   }
 }

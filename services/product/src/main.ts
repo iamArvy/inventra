@@ -1,10 +1,36 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { join } from 'path';
+import {
+  HealthImplementation,
+  protoPath as healthCheckProtoPath,
+} from 'grpc-health-check';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.GRPC,
+      options: {
+        package: 'product',
+        protoPath: [
+          healthCheckProtoPath,
+          join(__dirname, '../proto/product.proto'),
+        ],
+        url: process.env.GRPC_URL ?? 'localhost:5000',
+        onLoadPackageDefinition: (pkg, server) => {
+          const healthImpl = new HealthImplementation({
+            '': 'UNKNOWN',
+          });
+
+          healthImpl.addToServer(server);
+          healthImpl.setStatus('', 'SERVING');
+        },
+      },
+    },
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -15,17 +41,6 @@ async function bootstrap() {
       // }
     }),
   );
-  app.enableCors();
-  const config = new DocumentBuilder()
-    .setTitle('Product Service')
-    .setDescription('Product Service API')
-    .addBearerAuth()
-    .setVersion('1.0')
-    .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory, {
-    jsonDocumentUrl: 'swagger/json',
-  });
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen();
 }
 bootstrap();

@@ -1,13 +1,25 @@
-import { Field, InputType, PartialType } from '@nestjs/graphql';
+import { PartialType } from '@nestjs/mapped-types';
 
-@InputType()
 export class AttributeInput {
-  @Field(() => String)
   key: string;
-
-  @Field(() => String)
   value: string;
 }
 
-@InputType()
-export class UpdateAttributeInput extends PartialType(AttributeInput) {}
+export class CreateAttributeInput {
+  key: string;
+  value: string;
+  variant_id: string;
+  store_id?: string;
+  product_id?: string;
+}
+
+export class FindAttributeInput {
+  variant_id?: string;
+  orderBy?: { key?: 'asc' | 'desc'; value?: 'asc' | 'desc' };
+  skip?: number;
+  take?: number;
+}
+
+export class UpdateAttributeInput extends PartialType(AttributeInput) {
+  id: string;
+}

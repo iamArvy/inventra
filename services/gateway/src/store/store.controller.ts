@@ -1,21 +1,15 @@
 import { Controller, Get, Inject, OnModuleInit, Param } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { StoreService } from './store.interface';
 import { firstValueFrom } from 'rxjs';
+import { STORE_SERVICE_NAME, StoreServiceClient } from 'src/generated/store';
 
 @Controller('store')
 export class StoreController implements OnModuleInit {
   constructor(@Inject('store') private client: ClientGrpc) {}
-  private storeService: StoreService;
-  // The storeService is initialized in onModuleInit to ensure that the gRPC service is ready to use.
-  // This is necessary because the gRPC client needs to be fully initialized before we can use it.
-  // The onModuleInit lifecycle hook is called after the module's dependencies have been resolved.
-  // import { StoreService as StoreServiceInterface } from './store.interface'; // Assuming you have a StoreService interface defined
-  // This interface should define the methods that the StoreService will implement.
-  // The StoreService interface is used to type the storeService variable, ensuring that it adheres to the expected contract.
-  // This allows for better type checking and autocompletion in your IDE.
+  private storeService: StoreServiceClient;
   onModuleInit() {
-    this.storeService = this.client.getService<StoreService>('StoreService');
+    this.storeService =
+      this.client.getService<StoreServiceClient>(STORE_SERVICE_NAME);
   }
 
   @Get('health')
@@ -33,7 +27,7 @@ export class StoreController implements OnModuleInit {
   // }
   @Get(':id')
   async getStore(@Param('id') id: string) {
-    const store = await firstValueFrom(this.storeService.GetStoreById({ id }));
+    const store = await firstValueFrom(this.storeService.getStoreById({ id }));
     console.log(store);
   }
   @Get('health')

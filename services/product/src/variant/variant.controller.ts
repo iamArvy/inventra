@@ -1,48 +1,39 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Put,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { VariantService } from './variant.service';
-import { CreateVariantInput, UpdateVariantInput, VariantResponse } from './dto';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { CreateVariantInput, UpdateVariantInput } from './dto';
+import { GrpcMethod } from '@nestjs/microservices';
 
 @Controller('variant')
 export class VariantController {
   constructor(private readonly variantService: VariantService) {}
 
-  @ApiOkResponse({ type: VariantResponse })
-  @Put('create')
-  createVariant(@Param('id') id: string, @Body() data: CreateVariantInput) {
-    return this.variantService.createVariant(id, data);
+  @GrpcMethod()
+  async create(data: CreateVariantInput) {
+    return await this.variantService.create(data);
   }
 
-  @ApiOkResponse({ type: [VariantResponse] })
-  @Get('')
-  async getVariants() {
+  @GrpcMethod()
+  async list() {
     return await this.variantService.getVariants();
   }
 
-  @ApiOkResponse({ type: VariantResponse })
-  @Get(':id')
-  async getVariant(@Param('id') id: string) {
+  // @GrpcMethod()
+  // async getProductVariants() {
+  //   return await this.variantService.get();
+  // }
+
+  @GrpcMethod()
+  async get({ id }: { id: string }) {
     return await this.variantService.getVariant(id);
   }
 
-  @Patch(':id/update')
-  async updateVariant(
-    @Param('id') id: string,
-    @Body() data: UpdateVariantInput,
-  ) {
-    return await this.variantService.updateVariant(id, data);
+  @GrpcMethod()
+  async update(data: UpdateVariantInput) {
+    return await this.variantService.updateVariant(data.id, data);
   }
 
-  @Delete(':id/delete')
-  async deleteVariant(@Param('id') id: string) {
+  @GrpcMethod()
+  async delete({ id }: { id: string }) {
     return await this.variantService.deleteVariant(id);
   }
 }

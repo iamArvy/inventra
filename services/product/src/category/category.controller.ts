@@ -1,44 +1,44 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Put,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CreateCategoryInput, UpdateCategoryInput } from './dto';
+import {
+  CreateCategoryInput,
+  FindCategoryInput,
+  UpdateCategoryInput,
+} from './dto';
+import { GrpcMethod } from '@nestjs/microservices';
 
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Put('create')
-  createCategory(@Body() data: CreateCategoryInput) {
+  @GrpcMethod()
+  create(data: CreateCategoryInput) {
     return this.categoryService.createCategory(data);
   }
 
-  @Get('')
-  async getCategories() {
-    return await this.categoryService.getCategories();
+  @GrpcMethod()
+  async getById({ id }: { id: string }) {
+    return await this.categoryService.getCategoryById(id);
   }
 
-  @Get(':id')
-  async getCategory(@Param('id') id: string) {
-    return await this.categoryService.getCategory(id);
+  @GrpcMethod()
+  async getByName({ name }: { name: string }) {
+    return await this.categoryService.getCategoryByName(name);
   }
 
-  @Patch(':id/update')
-  async updateCategory(
-    @Param('id') id: string,
-    @Body() data: UpdateCategoryInput,
-  ) {
-    return await this.categoryService.updateCategory(id, data);
+  @GrpcMethod()
+  async list(data: FindCategoryInput) {
+    const categories = await this.categoryService.getCategories(data);
+    return { categories };
   }
 
-  @Delete(':id/delete')
-  async deleteCategory(@Param('id') id: string) {
-    return await this.categoryService.deleteCategory(id);
+  @GrpcMethod()
+  async update(data: UpdateCategoryInput) {
+    return await this.categoryService.update(data);
+  }
+
+  @GrpcMethod()
+  async delete({ id }: { id: string }) {
+    return await this.categoryService.delete(id);
   }
 }

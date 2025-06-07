@@ -1,13 +1,8 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { ApiProperty } from '@nestjs/swagger';
-
-@ObjectType()
 export class AttributeResponse {
-  @Field(() => String)
-  @ApiProperty({ type: String })
+  id: string;
   key: string;
-
-  @Field(() => String)
-  @ApiProperty({ type: String })
   value: string;
+  variant_id: string;
+  created_at: Date;
+  updated_at: Date;
 }

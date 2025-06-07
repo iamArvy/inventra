@@ -14,18 +14,19 @@ import { UpdateEmailInput, UpdatePasswordInput } from './dto/user.inputs';
 import { RestAuthGuard } from 'src/guards';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { ClientGrpc } from '@nestjs/microservices';
-import { UserService } from './user.interface';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { HealthResponse } from 'src/dto/status.response';
+import { USER_SERVICE_NAME, UserServiceClient } from 'src/generated/auth';
 
 @ApiBearerAuth()
 @UseGuards(RestAuthGuard, RolesGuard)
 @Controller('users')
 export class UserController implements OnModuleInit {
   constructor(@Inject('auth') private client: ClientGrpc) {}
-  private userService: UserService;
+  private userService: UserServiceClient;
   onModuleInit() {
-    this.userService = this.client.getService<UserService>('UserService');
+    this.userService =
+      this.client.getService<UserServiceClient>(USER_SERVICE_NAME);
   }
   // constructor(private readonly userService: UserService) {}
 

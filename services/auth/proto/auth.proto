@@ -1,0 +1,92 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package auth;
+
+service AuthService {
+  rpc health (google.protobuf.Empty) returns (HealthCheckResponse) {}
+  rpc register (AuthInput) returns (AuthResponse) {}
+  rpc login (AuthInput) returns (AuthResponse) {}
+  // rpc logout (StoreById) returns (Empty) {}
+  // rpc forgotPassword (StoreById) returns (Empty) {}
+  // rpc resetPassword (StoreInput) returns (Empty) {}
+}
+
+service RoleService {
+  rpc create (RoleInput) returns (HealthCheckResponse) {}
+  rpc roles (google.protobuf.Empty) returns (RoleList) {}
+  rpc roleById (RoleById) returns (Role) {}
+  rpc roleByName (RoleByName) returns (Role) {}
+  // rpc update (RoleInput) returns (AuthResponse) {}
+  rpc delete (RoleById) returns (Status) {}
+  rpc health (google.protobuf.Empty) returns (HealthCheckResponse) {}
+}
+
+service UserService {
+  rpc updatePassword (UpdatePasswordInput) returns (Status) {}
+  rpc updateEmail (UpdateEmailInput) returns (Status) {}
+  rpc assignRole (UserRoleInput) returns (Status) {}
+  rpc removeRole (UserRoleInput) returns (Status) {}
+  rpc health (google.protobuf.Empty) returns (HealthCheckResponse) {}
+}
+
+message Status {
+  bool success = 1;
+}
+
+message UpdatePasswordInput {
+  string id = 1;
+  string oldPassword = 2;
+  string newPassword = 3;
+}
+
+message UpdateEmailInput {
+  string id = 1;
+  string email = 2;
+}
+
+message UserRoleInput {
+  string user_id = 1;
+  string role_id = 2;
+}
+
+message HealthCheckResponse {
+  string status = 1;
+  string timestamp = 2;
+}
+
+message Token {
+  string token = 1;
+  int32 expiresIn = 2;
+}
+
+message AuthInput {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  Token access = 1;
+  Token refresh = 2;
+}
+
+message Role {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+message RoleList {
+  repeated Role roles = 1;
+}
+message RoleById {
+  string id = 1;
+}
+message RoleByName {
+  string name = 1;
+}
+message RoleInput {
+  string name = 1;
+  string description = 2;
+}

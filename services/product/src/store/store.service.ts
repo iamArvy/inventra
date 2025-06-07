@@ -19,7 +19,7 @@ export class StoreService {
     return store;
   }
 
-  getStoreById(id: string) {
+  async getStoreById(id: string) {
     // Check Cache First
 
     const store = await this.prisma.store.findUnique({

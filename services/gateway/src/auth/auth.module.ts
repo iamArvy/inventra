@@ -13,7 +13,7 @@ import { UserController } from './user/user.controller';
         transport: Transport.GRPC,
         options: {
           package: 'auth',
-          protoPath: join(__dirname, '../../../protos/auth.proto'),
+          protoPath: join(__dirname, '../../proto/auth.proto'),
           url: process.env.GRPC_AUTH_URL || 'localhost:50051',
           // loader: {
           //   keepCase: true,

@@ -1,23 +1,40 @@
-import { Body, Controller, Delete, Param, Patch, Put } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AttributeService } from './attribute.service';
-import { AttributeInput, UpdateAttributeInput } from './dto';
+import {
+  CreateAttributeInput,
+  FindAttributeInput,
+  UpdateAttributeInput,
+} from './dto';
+import { GrpcMethod } from '@nestjs/microservices';
 
 @Controller('attributes')
 export class AttributeController {
   constructor(private readonly attributeService: AttributeService) {}
 
-  @Put('create/:id')
-  async addAttributes(@Param('id') id: string, @Body() data: AttributeInput) {
-    return await this.attributeService.create(id, data);
+  @GrpcMethod()
+  async create(data: CreateAttributeInput) {
+    // Check if the required fields are present
+    // Check if Variant Exists
+    return await this.attributeService.create(data);
   }
 
-  @Patch(':id/update')
-  async updateAttributes(@Param('id') id: string, data: UpdateAttributeInput) {
-    return await this.attributeService.update(id, data);
+  @GrpcMethod()
+  async get({ id }: { id: string }) {
+    return await this.attributeService.findById(id);
   }
 
-  @Delete(':id/delete')
-  async removeAttributes(@Param('id') id: string) {
+  @GrpcMethod()
+  async list(data: FindAttributeInput) {
+    return await this.attributeService.find(data);
+  }
+
+  @GrpcMethod()
+  async update(data: UpdateAttributeInput) {
+    return await this.attributeService.update(data);
+  }
+
+  @GrpcMethod()
+  async delete({ id }: { id: string }) {
     return await this.attributeService.delete(id);
   }
 }
