@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: auth-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: auth-db
+    networks:
+      - auth_network
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    environment:
+      DATABASE_URL: postgres://user:pass@db:5432/auth-db
+    depends_on:
+      - db
+    networks:
+      - auth_network
+
+  app:
+    build:
+      context: .
+    environment:
+      DATABASE_URL: postgres://user:pass@db:5432/auth-db
+      JWT_SECRET: 'my_secret'
+      SUPERUSER_EMAIL: 'superuser@gmail.com'
+      SUPERUSER_PASSWORD: 'superuser-password'
+    ports:
+      - '5000:5000'
+    depends_on:
+      - migrate
+    networks:
+      - auth_network
+
+networks:
+  auth_network:

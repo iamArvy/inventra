@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: store-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: store-db
+    networks:
+      - store_network
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    environment:
+      DATABASE_URL: postgres://user:pass@db:5432/store-db
+    depends_on:
+      - db
+    networks:
+      - store_network
+
+  app:
+    build:
+      context: .
+    environment:
+      DATABASE_URL: postgres://user:pass@db:5432/store-db
+    ports:
+      - '5000:5000'
+    depends_on:
+      - migrate
+    networks:
+      - store_network
+
+networks:
+  store_network:

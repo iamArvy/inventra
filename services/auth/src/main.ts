@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
@@ -10,33 +8,20 @@ async function bootstrap() {
       transport: Transport.GRPC,
       options: {
         package: 'auth',
-        protoPath: join(__dirname, '../proto/auth.proto'),
-        url: process.env.GRPC_URL ?? 'localhost:5000',
+        protoPath: 'proto/auth.proto',
+        url: process.env.GRPC_URL ?? undefined,
         // loader: {
-        //   keepCase: true,
-        //   longs: String,
-        //   enums: String,
-        //   defaults: true,
         //   arrays: true,
         //   objects: true,
+        //   includeDirs: ['proto'],
+        //   keepCase: true,
+        //   longs: String,
+        //   defaults: true,
         //   oneofs: true,
+        //   enums: String,
         // },
       },
     },
-  );
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      // forbidNonWhitelisted: true,
-      // transform: true,
-      // transformOptions: {
-      //   enableImplicitConversion: true,
-      // }
-    }),
-  );
-  console.log(
-    'GRPC Server is running on',
-    process.env.GRPC_URL ?? 'localhost:5000',
   );
   await app.listen();
 }

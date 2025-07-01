@@ -1,51 +1,56 @@
-# 🏬 Emporium
+# 🏪 Inventory Management API
 
-A scalable multi-store eCommerce platform built with a microservices architecture.
-
----
-
-## 🯩 Overview
-
-**Emporium** is a modern and modular eCommerce platform that enables:
-
-* 🛒 Shoppers to browse and purchase from various online stores
-* 🡩‍💼 Store owners to manage products, orders, and inventory via personalized dashboards
-* 👨‍💼 Admins to oversee platform-wide analytics, moderation, and growth
-
-Emporium follows a clean, microservices-based architecture for better scalability, performance, and developer experience.
+A scalable, multi-tenant **Inventory Management System** built with a **microservices architecture** using **NestJS**, **gRPC**, **GraphQL**, and **REST**. Designed to support separate API gateways for **store owners** and **admins**, with domain-driven service boundaries, robust RBAC, and event-driven messaging.
 
 ---
 
-## 🛠️ Tech Stack
+## 📌 Table of Contents
 
-| Layer          | Technology                         |
-| -------------- | ---------------------------------- |
-| Frontend       | Nuxt 3                             |
-| Backend        | NestJS (Modular Microservices)     |
-| Communication  | REST, gRPC                         |
-| Auth           | JWT, Passport.js                   |
-| Database       | PostgreSQL / MongoDB (per service) |
-| Realtime       | Socket.io, Redis Pub/Sub           |
-| Messaging      | AWS SQS / Kafka                    |
-| Storage        | Amazon S3                          |
-| Infrastructure | Docker, AWS ECS/Fargate, EC2       |
+* [Features](#features)
+* [Tech Stack](#tech-stack)
+* [Architecture](#architecture)
+* [Getting Started](#getting-started)
+* [Microservices Overview](#microservices-overview)
+* [API Gateways](#api-gateways)
+* [Authentication](#authentication)
+* [Events & Messaging](#events--messaging)
+* [Planned Features](#planned-features)
+* [Project Structure](#project-structure)
+* [Contributing](#contributing)
+* [License](#license)
 
 ---
 
-## 🧱 Microservices
+## ✨ Features
 
-| Service              | Description                                        |
-| -------------------- | -------------------------------------------------- |
-| Auth Service         | Handles registration, login, JWT issuance          |
-| Store Service        | Manages store creation, updates, and info          |
-| Product Service      | CRUD operations for store products                 |
-| Order Service        | Manages shopping carts, orders, and payments       |
-| User Service         | Handles user profiles and preferences              |
-| Inventory Service    | Stock and fulfillment tracking                     |
-| Notification Service | Email/SMS/push alerts for order and store updates  |
-| Media Service        | Uploads and stores images, videos, etc. to S3      |
-| Gateway API          | Acts as a central routing entry point for services |
-| Admin Service        | Platform-wide analytics and store moderation       |
+* 🧱 Microservices architecture with gRPC internal communication
+* 🌐 REST & GraphQL API exposure for external clients
+* 🔐 Role-based access control (RBAC) per store
+* 🛒 Store-level user management
+* 🛆 Product CRUD, stock levels, category management
+* 🗒 Inventory tracking and webhook/event-based sync (WIP)
+* 📊 Analytics module (WIP)
+* 📡 Separate API Gateways for **Store** and **Admin** (BFF-style architecture)
+
+---
+
+## 🛠 Tech Stack
+
+| Layer             | Tech Used                           |
+| ----------------- | ----------------------------------- |
+| Backend Framework | NestJS                              |
+| Communication     | gRPC, REST, GraphQL                 |
+| Database          | PostgreSQL, Redis                   |
+| Messaging Queue   | RabbitMQ                            |
+| Auth              | JWT, RBAC                           |
+| Containerization  | Docker, Docker Compose              |
+| DevOps            | GitHub Actions, Terraform (planned) |
+
+---
+
+## 🏗 Architecture
+
+\[Replace this section with an architecture diagram image.]
 
 ---
 
@@ -55,69 +60,118 @@ Emporium follows a clean, microservices-based architecture for better scalabilit
 
 * Node.js (v18+)
 * Docker & Docker Compose
-* pnpm (or npm/yarn)
-* AWS CLI (for cloud deployment)
+* PostgreSQL
+* RabbitMQ
 
-### Local Setup
+### Clone the Repo
 
 ```bash
-# Clone the monorepo
-git clone https://github.com/yourname/emporium.git
-cd emporium
+git clone https://github.com/iamarvy/inventory-management-api.git
+cd inventory-management-api
+```
 
-# Install dependencies
-pnpm install
+### Install Dependencies
 
-# Start all services
+```bash
+npm install
+```
+
+### Run Services via Docker
+
+```bash
 docker-compose up --build
 ```
 
-* Frontend (Nuxt) will be available at `http://localhost:3000`
-* Backend services will run on their respective ports inside Docker
+### Run Locally (Individually)
 
----
-
-## 🔮 Folder Structure
-
-```
-emporium/
-├── frontend/              # Nuxt frontend for shoppers
-├── admin-dashboard/       # Nuxt or Laravel admin panel
-├── store-dashboard/       # Nuxt or Laravel dashboard for vendors
-├── services/              # NestJS microservices
-│   ├── auth/
-│   ├── user/
-│   ├── store/
-│   ├── product/
-│   ├── order/
-│   ├── inventory/
-│   ├── notification/
-│   └── media/
-├── gateway/               # API Gateway
-├── docker-compose.yml
-└── README.md
+```bash
+cd services/auth
+npm run start:dev
 ```
 
 ---
 
-## 📊 Future Plans
+## 🧰 Microservices Overview
 
-* Add support for coupon codes and discounts
-* Integrate payment gateways (Stripe, PayPal)
-* Implement advanced analytics dashboard
-* Add ElasticSearch for fast product search
-* Subscription-based store tiers
-* AI-driven product recommendations
-* Multi-language and multi-currency support
-
----
-
-## 📝 License
-
-MIT License – see `LICENSE`
+| Service              | Description                                                |
+| -------------------- | ---------------------------------------------------------- |
+| Auth Service         | Handles authentication, authorization, and token issuance  |
+| Product Service      | Manages product CRUD and inventory levels                  |
+| Store Service        | Manages stores, store-specific users, and roles            |
+| Notification Service | Handles event-based messaging and notifications (optional) |
 
 ---
 
-## 🙌 Acknowledgements
+## 🌐 API Gateways
 
-Inspired by platforms like Shopify, Etsy, and Amazon – built for scale and flexibility with a developer-first architecture.
+### Store Gateway
+
+* REST/GraphQL interface for store users (owners, managers)
+* Access product inventory, roles, and store settings
+
+### Admin Gateway
+
+* Interface for global admins
+* Manage stores, view analytics, perform high-level operations
+
+---
+
+## 🔐 Authentication
+
+* JWT-based authentication strategy
+* Role-based access enforced at the store and service level
+* Uses NestJS guards and decorators for secure API access
+
+---
+
+## 📬 Events & Messaging
+
+* Uses RabbitMQ for service decoupling and async communication
+* Inventory updates, notifications, and events passed via message queues
+* Future support for webhook broadcasting to third-party systems
+
+---
+
+## 🗝 Planned Features
+
+* [ ] Inventory analytics dashboard
+* [ ] Admin audit logs
+* [ ] Multi-language support
+* [ ] Public API token system for store owners
+* [ ] Multi-currency pricing and conversion
+* [ ] Webhook subscription system
+
+---
+
+## 📁 Project Structure
+
+```bash
+/services
+  ├── auth/
+  ├── products/
+  ├── store/
+  ├── notifications/
+  └── common/          # Shared DTOs, interfaces
+/gateways
+  ├── store-gateway/
+  └── admin-gateway/
+/proto                 # gRPC proto definitions
+/docker                # Docker-related configs
+```
+
+---
+
+## 🤝 Contributing
+
+1. Fork this repo
+2. Create your feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes
+4. Push to the branch (`git push origin feature/my-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+<!-- This project is licensed under the MIT License. -->
+© 2025 Oluwaseyi Oke

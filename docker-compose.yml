@@ -1,74 +1,103 @@
 services:
-  store-gateway:
-    build:
-      context: ./gateways/store
-      args:
-        SERVICE: "api-gateway"
-    ports:
-      - "3000:3000"
-    depends_on:
-      - auth-service
-      - store-service
-      - product-service
+  db:
+    image: postgres:latest
+    container_name: inventory-db
+    restart: unless-stopped
     environment:
-      AUTH_SERVICE_URL: "http://auth-service:5000"
-      STORE_SERVICE_URL: "http://store-service:5000"
-      PRODUCT_SERVICE_URL: "http://product-service:5000"
-      JWT_SECRET: "my-secret"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
     networks:
-      - dreamscape-network
-    container_name: emporium-store-gateway
+      - inventory_network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+
+  migrate-auth:
+    build:
+      context: .
+      dockerfile: ./services/auth/Dockerfile.migrate
+    environment:
+      DATABASE_URL: ${AUTH_DB_URL}
+    depends_on:
+      - db
+    networks:
+      - inventory_network
+
+  migrate-product:
+    build:
+      context: .
+      dockerfile: ./services/product/Dockerfile.migrate
+    environment:
+      DATABASE_URL: ${PRODUCT_DB_URL}
+    depends_on:
+      - db
+    networks:
+      - inventory_network
+
+  migrate-store:
+    build:
+      context: .
+      dockerfile: ./services/store/Dockerfile.migrate
+    environment:
+      DATABASE_URL: ${STORE_DB_URL}
+    depends_on:
+      - db
+    networks:
+      - inventory_network
 
   auth-service:
     build:
       context: ./services/auth
+    environment:
+      DATABASE_URL: ${AUTH_DB_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      REDIS_URL: redis:6379
     depends_on:
       - db
-    environment:
-      DATABASE_URL: "postgres://root:example@localhost:27017/auth?authSource=admin"
+      - migrate-auth
     networks:
-      - dreamscape-network
-    container_name: emporium-auth-service
-
-  store-service:
-    build:
-      context: ./services/auth
-    depends_on:
-      - db
-    environment:
-      DATABASE_URL: "mongodb://root:example@localhost:27017/auth?authSource=admin"
-    networks:
-      - dreamscape-network
-    container_name: emporium-store-service
+      - inventory_network
 
   product-service:
     build:
       context: ./services/product
+    environment:
+      DATABASE_URL: ${PRODUCT_DB_URL}
+      REDIS_URL: redis:6379
     depends_on:
       - db
-    environment:
-      DATABASE_URL: "mongodb://root:example@localhost:27017/auth?authSource=admin"
+      - migrate-product
     networks:
-      - dreamscape-network
-    container_name: emporium-product-service
+      - inventory_network
 
-  db:
-    image: postgres:latest
-    container_name: emporium-db
-    restart: unless-stopped
+  store-service:
+    build:
+      context: ./services/store
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      DATABASE_URL: ${STORE_DB_URL}
+      REDIS_URL: redis:6379
+    depends_on:
+      - db
+      - migrate-store
+    networks:
+      - inventory_network
+
+  store-dashboard-gateway:
+    build:
+      context: ./gateways/store-dashboard
+    environment:
+      AUTH_GRPC_URL: auth-service:5000
+      GRPC_PRODUCT_URL: product-service:5000
+      STORE_GRPC_URL: store-service:5000
     ports:
-      - "27017:27017"
-    volumes:
-      - db-data:/data/db
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - product-service
+      - store-service
     networks:
-      - dreamscape-network
-
-volumes:
-  db-data:
+      - inventory_network
 
 networks:
-  dreamscape-network:
-    driver: bridge
+  inventory_network:

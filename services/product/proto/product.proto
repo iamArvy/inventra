@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-
 package product;
 
 message Status {
@@ -16,31 +14,43 @@ message Name {
   string name = 1;
 }
 
+message AttributeInput {
+  string key = 1;
+  string value = 2;
+}
+
+message PartialAttributeInput {
+  optional string key = 1;
+  optional string value = 2;
+}
+
 message CreateAttributeInput {
   string variant_id = 1;
-  string key = 2;
-  string value = 3;
-  optional string store_id = 4; // Optional, if the attribute is store-specific
-}
-
-message FindAttributeInput {
-  optional string variant_id = 1;
-  optional AttributeOrderBy orderBy = 2;
-  optional int32 skip = 3; // Number of items to skip for pagination
-  optional int32 take = 4;
-}
-
-message AttributeOrderBy {
-  optional string key = 1; // Sort by key
-  optional string value = 2; // Sort by value
-  optional string created_at = 3; // Sort by value
-  optional string updated_at = 4;
+  AttributeInput data = 2;
 }
 
 message UpdateAttributeInput {
   string id = 1;
-  optional string key = 2;
-  optional string value = 3;
+  PartialAttributeInput data = 2;
+}
+
+message AttributeOrderBy {
+  optional string key = 1;
+  optional string value = 2;
+  optional string created_at = 3;
+  optional string updated_at = 4;
+}
+
+message ListAttributeInput {
+  optional string variant_id = 1;
+  optional AttributeOrderBy orderBy = 2;
+  optional int32 skip = 3;
+  optional int32 take = 4;
+}
+
+message ListAttributeByRelationInput {
+  string id = 1;
+  ListAttributeInput params = 2;
 }
 
 message Attribute {
@@ -48,29 +58,42 @@ message Attribute {
   string name = 2;
   string value = 3;
   string variant_id = 4;
+  string created_at = 5;
+  string updated_at = 6;
 }
 
 message AttributeList {
   repeated Attribute attributes = 1;
 }
 
+
 service AttributeService {
   rpc Create (CreateAttributeInput) returns (Attribute) {}
   rpc Get (Id) returns (Attribute) {}
-  rpc List (FindAttributeInput) returns (AttributeList) {}
+  rpc List (ListAttributeInput) returns (AttributeList) {}
+  rpc ListVariantAttributes (ListAttributeByRelationInput) returns (AttributeList) {}
   rpc Update (UpdateAttributeInput) returns (Attribute) {}
   rpc Delete (Id) returns (Status) {}
 }
 
-message CreateCategoryInput {
+message CategoryInput {
   string name = 1;
   string description = 2;
 }
 
-message FindCategoryInput {
-  optional CategoryOrderBy orderBy = 1;
-  optional int32 skip = 2; // Number of items to skip for pagination
-  optional int32 take = 3;
+message PartialCategoryInput {
+  optional string name = 1;
+  optional string description = 2;
+}
+
+message CreateCategoryInput {
+  string store_id = 1;
+  CategoryInput data = 2;
+}
+
+message UpdateCategoryInput {
+  string id = 1;
+  PartialCategoryInput data = 2;
 }
 
 message CategoryOrderBy {
@@ -79,20 +102,24 @@ message CategoryOrderBy {
   optional string updated_at = 3; // Sort by value
 }
 
-message UpdateCategoryInput {
+message ListCategoryInput {
+  optional CategoryOrderBy orderBy = 1;
+  optional int32 skip = 2; // Number of items to skip for pagination
+  optional int32 take = 3;
+}
+
+message ListCategoryByRelationInput {
   string id = 1;
-  optional string name = 2;
-  optional string description = 3;
-  optional string created_at = 4;
-  optional string updated_at = 5;
+  optional ListCategoryInput params = 2;
 }
 
 message Category {
   string id = 1;
   string name = 2;
   string description = 3;
-  optional string created_at = 4;
-  optional string updated_at = 5;
+  string store_id = 4;
+  optional string created_at = 5;
+  optional string updated_at = 6;
 }
 
 message CategoryList {
@@ -103,41 +130,41 @@ service CategoryService {
   rpc Create (CreateCategoryInput) returns (Category) {}
   rpc GetById (Id) returns (Category) {}
   rpc GetByName (Name) returns (Category) {}
-  rpc List (FindCategoryInput) returns (CategoryList) {}
+  rpc List (ListCategoryInput) returns (CategoryList) {}
+  rpc ListStoreCategories (ListCategoryByRelationInput) returns (CategoryList) {}
   rpc Update (UpdateCategoryInput) returns (Category) {}
   rpc Delete (Id) returns (Status) {}
 }
 
-message CreateProductInput {
+message ProductInput {
   string name = 1;
   string description = 2;
-  string store_id = 3;
-  string category_id = 4;
-  repeated string tags = 5;
-  optional ProductVariantInput variant = 6; // IDs of attributes associated with the product
+  string category_id = 3;
+  repeated string tags = 4;
 }
 
-message ProductVariantInput {
-  string sku = 1;
-  int32 price = 2;
-  int32 stock =3;
-  repeated VariantAttributeInput attributes = 4;
+message PartialProductInput {
+  optional string name = 1;
+  optional string description = 2;
+  optional string category_id = 3;
+  repeated string tags = 4;
 }
 
-message VariantAttributeInput {
-  string key = 1;
-  string value =2;
+message CreateProductInput {
+  string store_id = 1;
+  ProductInput data = 2;
+  repeated VariantInput variants = 3;
 }
 
 message UpdateProductInput {
   string id = 1;
-  optional string name = 2;
-  optional string description = 3;
+  PartialProductInput data = 2;
 }
 
 message ProductStore {
   string id= 1;
   string name = 2;
+  string logo = 3;
 }
 
 message ProductCategory {
@@ -149,15 +176,15 @@ message ProductVariant {
   string id = 1;
   string name = 2;
   string description = 3;
-  repeated Attribute attributes = 4; // Attributes associated with the variant
+  repeated Attribute attributes = 4;
 }
 
 message Product{
   string id = 1;
   string name = 2;
   string description = 3;
-  string category_id = 4; // ID of the category this product belongs to
-  string store_id = 5; // ID of the store this product belongs to
+  string category_id = 4;
+  string store_id = 5;
   string created_at = 6;
   string updated_at = 7;
   repeated ProductVariant variants = 8;
@@ -168,8 +195,8 @@ message ProductWithRelationships{
   string name = 2;
   string description = 3;
   ProductStore store = 4;
-  ProductCategory category = 5; // Category of the product
-  repeated ProductVariant variants = 6; // Attributes associated with the product
+  ProductCategory category = 5;
+  repeated ProductVariant variants = 6;
   string created_at = 7;
   string updated_at = 8;
 }
@@ -178,36 +205,56 @@ message ProductList {
   repeated Product products = 1;
 }
 
+
+message ProductOrderBy {
+  optional string name = 1; // Sort by key
+  optional string created_at = 2; // Sort by value
+  optional string updated_at = 3; // Sort by value
+}
+
+message ListProductInput {
+  optional ProductOrderBy orderBy = 1;
+  optional int32 skip = 2; // Number of items to skip for pagination
+  optional int32 take = 3;
+}
+
+message ListProductByRelationInput {
+  string id = 1;
+  optional ListProductInput params = 2;
+}
+
 service ProductService {
-  rpc Create (CreateProductInput) returns (Status) {}
-  rpc Get (Id) returns (Product) {}
-  rpc GetStoreProducts (Id) returns (ProductList) {}
-  rpc GetCategoryProducts (Id) returns (ProductList) {}
-  rpc List (google.protobuf.Empty) returns (ProductList) {}
+  rpc Create (CreateProductInput) returns (Product) {}
+  rpc Get (Id) returns (ProductWithRelationships) {}
+  rpc ListStoreProducts (ListProductByRelationInput) returns (ProductList) {}
+  rpc ListCategoryProducts (ListProductByRelationInput) returns (ProductList) {}
+  rpc List (ListProductInput) returns (ProductList) {}
   rpc Update (UpdateProductInput) returns (Status) {}
   rpc Delete (Id) returns (Status) {}
 }
 
-service VariantService {
-  rpc Create (CreateVariantInput) returns (Status) {}
-  rpc Get (Id) returns (Variant) {}
-  rpc GetProductVariants (Id) returns (VariantList) {}
-  rpc List (google.protobuf.Empty) returns (VariantList) {}
-  rpc Update (UpdateVariantInput) returns (Status) {}
-  rpc Delete (VariantId) returns (Status) {}
+message VariantInput {
+  string sku = 1;
+  int32 price = 2;
+  int32 stock =3;
+  repeated AttributeInput attributes = 4;
+}
+
+message PartialVariantInput {
+  optional string sku = 1;
+  optional int32 price = 2;
+  optional int32 stock = 3;
 }
 
 message CreateVariantInput {
   string product_id = 1;
-  string sku = 2;
-  int32 price = 3;
-  int32 stock =4;
+  VariantInput data = 2;
 }
+
 
 message UpdateVariantInput {
   string id = 1;
-  string sku = 2;
-  int32 price = 3;
+  PartialVariantInput data = 2;
 }
 
 message Variant {
@@ -221,10 +268,33 @@ message Variant {
   string updated_at = 8;
 }
 
-message VariantId {
-  string id = 1;
-}
-
 message VariantList {
   repeated Variant variants = 1;
+}
+
+
+message VariantOrderBy {
+  optional int32 price = 1; // Sort by key
+  optional string created_at = 2; // Sort by value
+  optional string updated_at = 3; // Sort by value
+}
+
+message ListVariantInput {
+  optional VariantOrderBy orderBy = 1;
+  optional int32 skip = 2; // Number of items to skip for pagination
+  optional int32 take = 3;
+}
+
+message ListVariantByRelationInput {
+  string id = 1;
+  optional ListVariantInput params = 2;
+}
+
+service VariantService {
+  rpc Create (CreateVariantInput) returns (Status) {}
+  rpc Get (Id) returns (Variant) {}
+  rpc ListProductVariants (ListVariantByRelationInput) returns (VariantList) {}
+  rpc List (ListVariantInput) returns (VariantList) {}
+  rpc Update (UpdateVariantInput) returns (Status) {}
+  rpc Delete (Id) returns (Status) {}
 }

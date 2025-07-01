@@ -1,92 +1,149 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
 
 package auth;
 
-service AuthService {
-  rpc health (google.protobuf.Empty) returns (HealthCheckResponse) {}
-  rpc register (AuthInput) returns (AuthResponse) {}
-  rpc login (AuthInput) returns (AuthResponse) {}
-  // rpc logout (StoreById) returns (Empty) {}
-  // rpc forgotPassword (StoreById) returns (Empty) {}
-  // rpc resetPassword (StoreInput) returns (Empty) {}
-}
+import "google/protobuf/empty.proto";
 
-service RoleService {
-  rpc create (RoleInput) returns (HealthCheckResponse) {}
-  rpc roles (google.protobuf.Empty) returns (RoleList) {}
-  rpc roleById (RoleById) returns (Role) {}
-  rpc roleByName (RoleByName) returns (Role) {}
-  // rpc update (RoleInput) returns (AuthResponse) {}
-  rpc delete (RoleById) returns (Status) {}
-  rpc health (google.protobuf.Empty) returns (HealthCheckResponse) {}
+service AuthService {
+  rpc Health(google.protobuf.Empty) returns (Status);
+  rpc Register(RegisterRequest) returns (AuthResponse);
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc RefreshToken(TokenRequest) returns (AuthToken);
+  rpc Logout(TokenRequest) returns (Status);
 }
 
 service UserService {
-  rpc updatePassword (UpdatePasswordInput) returns (Status) {}
-  rpc updateEmail (UpdateEmailInput) returns (Status) {}
-  rpc assignRole (UserRoleInput) returns (Status) {}
-  rpc removeRole (UserRoleInput) returns (Status) {}
-  rpc health (google.protobuf.Empty) returns (HealthCheckResponse) {}
+  rpc Health(google.protobuf.Empty) returns (Status);
+  rpc ChangePassword(ChangePasswordRequest) returns (Status);
+  rpc ChangeEmail(ChangeEmailRequest) returns (Status);
+  rpc requestPasswordResetToken(RequestPasswordResetMessage) returns (Status);
+  rpc resetPassword(ResetPasswordMessage) returns (Status);
+  rpc RequestEmailVerification(EmailData) returns (Status);
+  rpc VerifyEmail(TokenRequest) returns (Status);
+}
+
+service SessionService {
+  rpc Health(google.protobuf.Empty) returns (Status);
+  rpc GetAllUserSessions(IdInput) returns (SessionList);
+  rpc LogoutOtherUserSession(IdInput) returns (Status);
+}
+
+service RoleService {
+  rpc Health(google.protobuf.Empty) returns (Status);
+  rpc Create(CreateRoleInput) returns (RoleData);
+  rpc Update(UpdateRoleInput) returns (Status);
+  rpc Find(IdInput) returns (RoleData);
+  rpc List(google.protobuf.Empty) returns (RoleList);
+  rpc Delete(IdInput) returns (Status);
+}
+
+message IdInput {
+  string id = 1;
 }
 
 message Status {
   bool success = 1;
 }
 
-message UpdatePasswordInput {
-  string id = 1;
-  string oldPassword = 2;
-  string newPassword = 3;
-}
-
-message UpdateEmailInput {
-  string id = 1;
+message RegisterData {
+  string userId = 1;
   string email = 2;
+  string password = 3;
 }
 
-message UserRoleInput {
-  string user_id = 1;
-  string role_id = 2;
+message RegisterRequest {
+  RegisterData data = 1;
+  string userAgent = 2;
+  string ipAddress = 3;
 }
 
-message HealthCheckResponse {
-  string status = 1;
-  string timestamp = 2;
+message AuthResponse {
+  AuthToken access = 1;
+  AuthToken refresh = 2;
 }
 
-message Token {
+message AuthToken {
   string token = 1;
   int32 expiresIn = 2;
 }
 
-message AuthInput {
+message ChangePasswordData {
+  string oldPassword = 1;
+  string newPassword = 2;
+}
+
+message ChangePasswordRequest {
+  string id = 1;
+  ChangePasswordData data = 2;
+}
+
+message RequestPasswordResetMessage {
+  string id = 1;
+  string email = 2;
+}
+
+message ResetPasswordMessage {
+  string token = 1;
+  string password = 2;
+}
+
+message EmailData {
+  string email = 1;
+}
+
+message ChangeEmailRequest {
+  string id = 1;
+  EmailData data = 2;
+}
+
+message TokenRequest {
+  string token = 1;
+}
+
+message IsEmailVerifiedResponse {
+  bool verified = 1;
+}
+
+message LoginData {
   string email = 1;
   string password = 2;
 }
 
-message AuthResponse {
-  Token access = 1;
-  Token refresh = 2;
+message LoginRequest {
+  LoginData data = 1;
+  string userAgent = 2;
+  string ipAddress = 3;
 }
 
-message Role {
+message SessionData {
+  string id = 1;
+  string userAgent = 2;
+  string ipAddress = 3;
+  string createdAt = 4;
+}
+
+message SessionList {
+  repeated SessionData sessions = 1;
+}
+
+message CreateRoleInput {
+  string name = 1;
+}
+
+message UpdateRoleData {
+  string name = 2;
+}
+
+message UpdateRoleInput {
+  string id = 1;
+  UpdateRoleData data = 2;
+}
+
+message RoleData {
   string id = 1;
   string name = 2;
-  string description = 3;
-  string created_at = 4;
-  string updated_at = 5;
 }
+
 message RoleList {
-  repeated Role roles = 1;
-}
-message RoleById {
-  string id = 1;
-}
-message RoleByName {
-  string name = 1;
-}
-message RoleInput {
-  string name = 1;
-  string description = 2;
+  repeated RoleData roles = 1;
 }

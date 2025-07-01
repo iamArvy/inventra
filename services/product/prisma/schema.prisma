@@ -17,11 +17,23 @@ datasource db {
 model Store {
   id         String      @id @default(cuid())
   name       String
+  logo       String?
   status     StoreStatus @default(ACTIVE)
-  owner_id   String      @unique
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
-  products   Product[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  image       String?
+  store_id    String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  products    Product[]
+
+  @@unique([store_id, name])
 }
 
 model Product {
@@ -36,17 +48,6 @@ model Product {
   updated_at  DateTime  @updatedAt
   variants    Variant[]
   category    Category  @relation(fields: [category_id], references: [id])
-  store       Store     @relation(fields: [store_id], references: [id])
-}
-
-model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  description String
-  image       String?
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
-  products    Product[]
 }
 
 model Variant {
