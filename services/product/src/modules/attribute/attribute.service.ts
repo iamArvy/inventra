@@ -1,23 +1,24 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   AttributeInput,
   ListAttributeInput,
   PartialAttributeInput,
 } from '../../dto/attribute';
 import { AttributeRepository } from 'src/db/repository/attribute.repository';
-import { RpcException } from '@nestjs/microservices';
 import { VariantRepository } from 'src/db/repository/variant.repository';
-import { CacheService } from '../cache/cache.service';
+import { CacheService } from 'src/common/cache/cache.service';
 import { VariantAttributes } from 'generated/prisma';
+import { BaseService } from 'src/common/base/base.service';
 
 @Injectable()
-export class AttributeService {
+export class AttributeService extends BaseService {
   constructor(
     private repo: AttributeRepository,
     private variantRepo: VariantRepository,
     private cache: CacheService,
-  ) {}
-  private logger: Logger = new Logger(AttributeService.name);
+  ) {
+    super();
+  }
   async create(variant_id: string, data: AttributeInput) {
     try {
       await this.variantRepo.findByIdOrThrow(variant_id);
@@ -31,8 +32,7 @@ export class AttributeService {
       });
       return attribute;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'AttributeService.create');
     }
   }
 
@@ -45,8 +45,7 @@ export class AttributeService {
       await this.cache.set<VariantAttributes>(cacheKey, attribute);
       return attribute;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'AttributeService.get');
     }
   }
 
@@ -59,8 +58,7 @@ export class AttributeService {
       await this.cache.set<VariantAttributes[]>(cacheKey, attributes);
       return attributes;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'AttributeService.listVariantAttributes');
     }
   }
 
@@ -73,8 +71,7 @@ export class AttributeService {
       await this.cache.set<VariantAttributes[]>(cacheKey, attributes);
       return attributes;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'AttributeService.list');
     }
   }
 
@@ -84,8 +81,7 @@ export class AttributeService {
       await this.repo.update(id, data);
       return { success: true };
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'AttributeService.update');
     }
   }
 
@@ -95,8 +91,7 @@ export class AttributeService {
       await this.repo.delete(id);
       return { success: true };
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'AttributeService.delete');
     }
   }
 }

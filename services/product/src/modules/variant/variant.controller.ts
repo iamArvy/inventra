@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { VariantService } from 'src/service/variant/variant.service';
+import { VariantService } from './variant.service';
 import {
   CreateVariantInput,
   ListVariantInput,

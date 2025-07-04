@@ -7,7 +7,7 @@ import {
 } from 'src/dto';
 import { GrpcMethod } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
-import { ProductService } from 'src/service/product/product.service';
+import { ProductService } from './product.service';
 
 @Controller('products')
 export class ProductController {

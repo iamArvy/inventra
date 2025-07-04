@@ -1,22 +1,22 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   CategoryInput,
   ListCategoryInput,
   PartialCategoryInput,
 } from 'src/dto';
 import { CategoryRepository } from 'src/db/repository/category.repository';
-import { RpcException } from '@nestjs/microservices';
-import { CacheService } from '../cache/cache.service';
+import { CacheService } from 'src/common/cache/cache.service';
 import { Category } from 'generated/prisma';
+import { BaseService } from 'src/common/base/base.service';
 
 @Injectable()
-export class CategoryService {
+export class CategoryService extends BaseService {
   constructor(
     private readonly repo: CategoryRepository,
     private readonly cacheService: CacheService,
-  ) {}
-
-  private logger: Logger = new Logger(CategoryService.name);
+  ) {
+    super();
+  }
 
   async create(store_id: string, data: CategoryInput) {
     try {
@@ -28,8 +28,7 @@ export class CategoryService {
       const category = await this.repo.create({ ...data, store_id });
       return category;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'CategoryService.create');
     }
   }
 
@@ -42,8 +41,7 @@ export class CategoryService {
       await this.cacheService.set<Category[]>(cacheKey, categories);
       return categories;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'CategoryService.list');
     }
   }
 
@@ -56,8 +54,7 @@ export class CategoryService {
       await this.cacheService.set<Category>(cacheKey, category);
       return category;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'CategoryService.getById');
     }
   }
 
@@ -70,8 +67,7 @@ export class CategoryService {
       await this.cacheService.set<Category>(cacheKey, category);
       return category;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'CategoryService.getByName');
     }
   }
 
@@ -84,8 +80,7 @@ export class CategoryService {
       await this.cacheService.set<Category[]>(cacheKey, categories);
       return categories;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'CategoryService.listStoreCategories');
     }
   }
 
@@ -95,8 +90,7 @@ export class CategoryService {
       await this.repo.update(id, data);
       return { success: true };
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'CategoryService.update');
     }
   }
 
@@ -106,8 +100,7 @@ export class CategoryService {
       await this.repo.delete(id);
       return { success: true };
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'CategoryService.delete');
     }
   }
 }

@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { AttributeService } from '../../service/attribute/attribute.service';
+import { AttributeService } from './attribute.service';
 import {
   CreateAttributeInput,
   ListAttributeByRelationInput,

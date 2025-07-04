@@ -1,5 +1,5 @@
 import { Store } from 'src/../generated/prisma/index.d';
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from 'generated/prisma';
 import {
   ListProductInput,
@@ -7,26 +7,26 @@ import {
   VariantInput,
   PartialProductInput,
 } from 'src/dto';
-import { CacheService } from '../cache/cache.service';
-import { ProductRepository } from '../../db/repository/product.repository';
-import { RpcException } from '@nestjs/microservices';
+import { CacheService } from 'src/common/cache/cache.service';
+import { ProductRepository } from 'src/db/repository/product.repository';
 import { StoreRepository } from 'src/db/repository/store.repository';
 import { VariantRepository } from 'src/db/repository/variant.repository';
+import { BaseService } from 'src/common/base/base.service';
 
 export interface ProductWithStore extends Product {
   store: Store;
 }
 
 @Injectable()
-export class ProductService {
+export class ProductService extends BaseService {
   constructor(
     private cacheManager: CacheService,
     private repo: ProductRepository,
     private variantRepo: VariantRepository,
     private storeRepo: StoreRepository,
-  ) {}
-
-  private logger: Logger = new Logger(ProductService.name);
+  ) {
+    super();
+  }
 
   async get(id: string) {
     const cacheKey = `product:${id}`;
@@ -44,8 +44,7 @@ export class ProductService {
       );
       return product;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'ProductService.get');
     }
   }
 
@@ -58,8 +57,7 @@ export class ProductService {
       await this.cacheManager.set<Product[]>(cacheKey, products, 60 * 1000);
       return products;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'ProductService.listProducts');
     }
   }
 
@@ -72,8 +70,7 @@ export class ProductService {
       await this.cacheManager.set<Product[]>(cacheKey, products, 60 * 1000);
       return products;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'ProductService.listProductsByCategory');
     }
   }
 
@@ -86,8 +83,7 @@ export class ProductService {
       await this.cacheManager.set<Product[]>(cacheKey, products, 60 * 1000);
       return products;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'ProductService.listStoreProducts');
     }
   }
 
@@ -121,8 +117,7 @@ export class ProductService {
       }
       return product;
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'ProductService.create');
     }
   }
 
@@ -132,8 +127,7 @@ export class ProductService {
       await this.repo.update(id, data);
       return { success: true };
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'ProductService.update');
     }
   }
 
@@ -143,8 +137,7 @@ export class ProductService {
       await this.repo.delete(id);
       return { success: true };
     } catch (error) {
-      this.logger.error(error);
-      throw new RpcException(error as object);
+      this.handleError(error, 'ProductService.delete');
     }
   }
 }

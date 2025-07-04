@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { CategoryService } from 'src/service/category/category.service';
+import { CategoryService } from './category.service';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
   IdInput,
