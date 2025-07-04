@@ -1,13 +1,21 @@
 import { Module } from '@nestjs/common';
-import { ControllerModule } from './controller/controller.module';
 import { ConfigModule } from '@nestjs/config';
-import { BaseModule } from './common/base/base.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { ClientModule } from './modules/client/client.module';
+import { RoleModule } from './modules/role/role.module';
+import { SessionModule } from './modules/session/session.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ControllerModule,
-    BaseModule,
+    AuthModule,
+    UserModule,
+    ClientModule,
+    RoleModule,
+    SessionModule,
+    PassportModule,
   ],
 })
 export class AppModule {}

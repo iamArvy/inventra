@@ -1,38 +1,36 @@
 import {
   BadRequestException,
   Injectable,
-  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { TokenService } from '../token/token.service';
+import { TokenService } from 'src/common/token/token.service';
 import { UserRepo } from 'src/db/repositories/user.repo';
-import { SecretService } from '../secret/secret.service';
-import { UpdatePasswordData } from 'src/dto/app.inputs';
-import { Status } from 'src/dto/app.response';
-import { RpcException } from '@nestjs/microservices';
+import { SecretService } from 'src/common/secret/secret.service';
+import { UpdatePasswordData } from 'src/common/dto/app.inputs';
+import { Status } from 'src/common/dto/app.response';
+import { BaseService } from 'src/common/base/base.service';
 
 @Injectable()
-export class UserService {
+export class UserService extends BaseService {
   constructor(
     private repo: UserRepo,
     private tokenService: TokenService,
     private secret: SecretService,
-  ) {}
+  ) {
+    super();
+  }
 
-  private logger: Logger = new Logger(UserService.name);
   async updatePassword(id: string, data: UpdatePasswordData): Promise<Status> {
     try {
       const user = await this.repo.findById(id);
       if (!user) throw new NotFoundException('User not found');
-
       await this.secret.compare(user.passwordHash, data.oldPassword);
       const hash = await this.secret.create(data.newPassword);
       await this.repo.updatePassword(id, hash);
       return { success: true };
     } catch (error) {
-      this.logger.log(error as string);
-      throw new RpcException(error);
+      this.handleError(error, 'UserService.updatePassword');
     }
   }
 
@@ -44,8 +42,7 @@ export class UserService {
       await this.repo.updateEmailVerified(id, false);
       return { success: true };
     } catch (error) {
-      this.logger.log(error as string);
-      throw new RpcException(error);
+      this.handleError(error, 'UserService.updateEmail');
     }
   }
 
@@ -66,8 +63,7 @@ export class UserService {
       // containing a token or code to verify the email.
       return { success: true };
     } catch (error) {
-      this.logger.log(error as string);
-      throw new RpcException(error);
+      this.handleError(error, 'UserService.requestEmailVerification');
     }
   }
 
@@ -84,8 +80,7 @@ export class UserService {
       await this.repo.updateEmailVerified(sub, true);
       return { success: true };
     } catch (error) {
-      this.logger.log(error as string);
-      throw new RpcException(error);
+      this.handleError(error, 'UserService.verifyEmail');
     }
   }
 
@@ -105,8 +100,7 @@ export class UserService {
       console.log(token);
       return { success: true };
     } catch (error) {
-      this.logger.log(error as string);
-      throw new RpcException(error);
+      this.handleError(error, 'UserService.requestPasswordResetToken');
     }
   }
 
@@ -122,8 +116,7 @@ export class UserService {
       await this.repo.updatePassword(user.id, hash);
       return { success: true };
     } catch (error) {
-      this.logger.log(error as string);
-      throw new RpcException(error);
+      this.handleError(error, 'UserService.resetPassword');
     }
   }
 }

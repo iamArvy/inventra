@@ -7,8 +7,8 @@ import {
   TokenInput,
   UpdatePasswordData,
   UserInput,
-} from 'src/dto/app.inputs';
-import { UserService } from 'src/service/user/user.service';
+} from 'src/common/dto/app.inputs';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {

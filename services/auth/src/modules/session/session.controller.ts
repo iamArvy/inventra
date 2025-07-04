@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { SessionService } from 'src/service/session/session.service';
+import { SessionService } from './session.service';
 
 @Controller('session')
 export class SessionController {

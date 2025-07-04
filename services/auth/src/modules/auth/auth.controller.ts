@@ -5,8 +5,8 @@ import {
   LoginData,
   RegisterData,
   TokenInput,
-} from 'src/dto/app.inputs';
-import { AuthService } from 'src/service/auth/auth.service';
+} from 'src/common/dto/app.inputs';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {

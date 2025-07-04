@@ -1,26 +1,26 @@
 import {
   Injectable,
-  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { SessionRepo } from 'src/db/repositories/session.repo';
 import { UserRepo } from 'src/db/repositories/user.repo';
-import { AuthResponse, Status } from 'src/dto/app.response';
-import { TokenService } from '../token/token.service';
-import { SecretService } from '../secret/secret.service';
-import { RpcException } from '@nestjs/microservices';
-import { LoginData, RegisterData } from 'src/dto/app.inputs';
+import { AuthResponse, Status } from 'src/common/dto/app.response';
+import { TokenService } from 'src/common/token/token.service';
+import { SecretService } from 'src/common/secret/secret.service';
+import { LoginData, RegisterData } from 'src/common/dto/app.inputs';
+import { BaseService } from 'src/common/base/base.service';
 
 @Injectable()
-export class AuthService {
+export class AuthService extends BaseService {
   constructor(
     private userRepo: UserRepo,
     private sessionRepo: SessionRepo,
     private tokenService: TokenService,
     private secret: SecretService,
-  ) {}
-  private logger = new Logger(AuthService.name);
+  ) {
+    super();
+  }
 
   private async authenticateUser(
     id: string,
@@ -51,8 +51,7 @@ export class AuthService {
         },
       };
     } catch (error) {
-      this.logger.log(error);
-      throw new RpcException(error as string);
+      this.handleError(error, 'AuthService.authenticateUser');
     }
   }
 
@@ -73,8 +72,7 @@ export class AuthService {
       if (!user) throw new UnauthorizedException('User creation failed');
       return this.authenticateUser(user.id, userAgent, ipAddress);
     } catch (error) {
-      this.logger.log(error);
-      throw new RpcException(error as string);
+      this.handleError(error, 'AuthService.signup');
     }
   }
 
@@ -91,8 +89,7 @@ export class AuthService {
       await this.secret.compare(user.passwordHash, data.password);
       return this.authenticateUser(user.id, userAgent, ipAddress);
     } catch (error) {
-      this.logger.log(error);
-      throw new RpcException(error as string);
+      this.handleError(error, 'AuthService.login');
     }
   }
 
@@ -123,8 +120,7 @@ export class AuthService {
       const accessToken = await this.tokenService.generateAccessToken(user.id);
       return { token: accessToken, expiresIn: 60 * 15 * 1000 };
     } catch (error) {
-      this.logger.log(error);
-      throw new RpcException(error as string);
+      this.handleError(error, 'AuthService.refreshToken');
     }
   }
 
@@ -143,8 +139,7 @@ export class AuthService {
       });
       return { success: true };
     } catch (error) {
-      this.logger.log(error);
-      throw new RpcException(error as string);
+      this.handleError(error, 'AuthService.logout');
     }
   }
 }
