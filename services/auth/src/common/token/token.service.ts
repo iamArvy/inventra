@@ -21,8 +21,16 @@ export class TokenService {
     return token;
   }
 
-  async generateAccessToken(id: string): Promise<string> {
-    return await this.generateToken({ sub: id, type: 'access' }, '15m');
+  async generateAccessToken(
+    id: string,
+    storeId: string,
+    emailVerified: boolean,
+    role: string = 'user',
+  ): Promise<string> {
+    return await this.generateToken(
+      { sub: id, type: 'access', storeId, emailVerified, role },
+      '15m',
+    );
   }
   async generateRefreshToken(id: string): Promise<string> {
     return await this.generateToken({ sub: id, type: 'refresh' }, '7d');

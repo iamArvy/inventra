@@ -10,6 +10,8 @@ import { TokenService } from 'src/common/token/token.service';
 import { SecretService } from 'src/common/secret/secret.service';
 import { LoginData, RegisterData } from 'src/common/dto/app.inputs';
 import { BaseService } from 'src/common/base/base.service';
+import { UserEvent } from 'src/messsaging/event/user.event';
+import { RoleRepo } from 'src/db/repositories/role.repo';
 
 @Injectable()
 export class AuthService extends BaseService {
@@ -18,38 +20,73 @@ export class AuthService extends BaseService {
     private sessionRepo: SessionRepo,
     private tokenService: TokenService,
     private secret: SecretService,
+    private userEvent: UserEvent,
+    private roleRepo: RoleRepo,
   ) {
     super();
+  }
+
+  private async issueTokens(
+    sessionId: string,
+    userId: string,
+    storeId: string,
+    emailVerified: boolean = false,
+  ): Promise<AuthResponse> {
+    const refreshToken =
+      await this.tokenService.generateRefreshToken(sessionId);
+    const accessToken = await this.tokenService.generateAccessToken(
+      userId,
+      storeId,
+      emailVerified,
+    );
+    const hashed = await this.secret.create(refreshToken);
+    await this.sessionRepo.updateRefreshToken(sessionId, hashed);
+
+    return {
+      access: {
+        token: accessToken,
+        expiresIn: 15 * 60 * 1000,
+      },
+      refresh: {
+        token: refreshToken,
+        expiresIn: 7 * 24 * 60 * 60 * 1000,
+      },
+    };
   }
 
   private async authenticateUser(
     id: string,
     userAgent: string,
     ipAddress: string,
+    newUser: boolean = false,
+    storeId: string,
+    emailVerified: boolean = false,
   ): Promise<AuthResponse> {
-    const refreshTokenExpiresIn = 60 * 60 * 24 * 7; // 7 days = 604800
-    const accessTokenExpiresIn = 60 * 15; // 15 minutes = 900
-
     try {
+      const existingSession = await this.sessionRepo.findByUserIdAndDevice(
+        id,
+        userAgent,
+        ipAddress,
+      );
+
+      if (existingSession) {
+        return this.issueTokens(existingSession.id, id, storeId, emailVerified);
+      }
+
       const session = await this.sessionRepo.create({
         user: { connect: { id } },
         userAgent,
         ipAddress,
-        expiresAt: new Date(Date.now() + refreshTokenExpiresIn * 1000),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       });
-      const accessToken = await this.tokenService.generateAccessToken(id);
-      const refreshToken = await this.tokenService.generateRefreshToken(
-        session.id,
-      );
-      const hashedRefreshToken = await this.secret.create(refreshToken);
-      await this.sessionRepo.updateRefreshToken(session.id, hashedRefreshToken);
-      return {
-        access: { token: accessToken, expiresIn: accessTokenExpiresIn * 1000 },
-        refresh: {
-          token: refreshToken,
-          expiresIn: refreshTokenExpiresIn * 1000,
-        },
-      };
+      if (!newUser) {
+        this.userEvent.newDeviceLogin({
+          userId: id,
+          userAgent,
+          ipAddress,
+        });
+      }
+      return this.issueTokens(session.id, id, storeId, emailVerified);
     } catch (error) {
       this.handleError(error, 'AuthService.authenticateUser');
     }
@@ -59,18 +96,59 @@ export class AuthService extends BaseService {
     data: RegisterData,
     userAgent: string,
     ipAddress: string,
+    storeId: string,
   ): Promise<AuthResponse> {
     try {
       if (!data) throw new UnauthorizedException('Invalid credentials');
       const exists = await this.userRepo.findByEmail(data.email);
       if (exists) throw new UnauthorizedException('User already exists');
       const hash = await this.secret.create(data.password);
+      // on signup create a owner role for the store and assign it to the user
+      const role = await this.roleRepo.create({
+        name: 'owner',
+        description: 'Owner of the store',
+        storeId,
+        RolePermissions: {
+          create: {
+            permission: {
+              connect: { name: 'all' }, // Assuming 'all' permission exists
+            },
+          },
+        },
+      });
+      if (!role) throw new UnauthorizedException('Role creation failed');
       const user = await this.userRepo.create({
         email: data.email,
         passwordHash: hash,
+        storeId,
+        role: { connect: { id: role.id } },
       });
+
       if (!user) throw new UnauthorizedException('User creation failed');
-      return this.authenticateUser(user.id, userAgent, ipAddress);
+
+      this.userEvent.created({
+        userId: user.id,
+        email: user.email,
+      });
+
+      const token = await this.tokenService.generateEmailVerificationToken(
+        user.id,
+        user.email,
+      );
+
+      this.userEvent.emailVerificationRequested({
+        token,
+        email: user.email,
+      });
+
+      return this.authenticateUser(
+        user.id,
+        userAgent,
+        ipAddress,
+        true,
+        storeId,
+        false,
+      );
     } catch (error) {
       this.handleError(error, 'AuthService.signup');
     }
@@ -84,10 +162,15 @@ export class AuthService extends BaseService {
     try {
       const user = await this.userRepo.findByEmail(data.email);
       if (!user) throw new UnauthorizedException('User not found');
-      if (!user.emailVerified)
-        throw new UnauthorizedException('Email not verified');
       await this.secret.compare(user.passwordHash, data.password);
-      return this.authenticateUser(user.id, userAgent, ipAddress);
+      return this.authenticateUser(
+        user.id,
+        userAgent,
+        ipAddress,
+        false,
+        user.storeId,
+        user.emailVerified,
+      );
     } catch (error) {
       this.handleError(error, 'AuthService.login');
     }
@@ -104,7 +187,7 @@ export class AuthService extends BaseService {
       if (!session || session.revokedAt) {
         throw new UnauthorizedException('Session not found or revoked');
       }
-      if (session.expiresAt < new Date()) {
+      if (session.expiresAt && session.expiresAt < new Date()) {
         throw new UnauthorizedException('Session expired');
       }
 
@@ -117,7 +200,12 @@ export class AuthService extends BaseService {
       const user = await this.userRepo.findById(session.id);
       if (!user) throw new NotFoundException('User not found');
       // Generate new tokens
-      const accessToken = await this.tokenService.generateAccessToken(user.id);
+      const accessToken = await this.tokenService.generateAccessToken(
+        user.id,
+        user.storeId,
+        user.emailVerified,
+        user.roleId,
+      );
       return { token: accessToken, expiresIn: 60 * 15 * 1000 };
     } catch (error) {
       this.handleError(error, 'AuthService.refreshToken');

@@ -6,6 +6,8 @@ import { ClientModule } from './modules/client/client.module';
 import { RoleModule } from './modules/role/role.module';
 import { SessionModule } from './modules/session/session.module';
 import { PassportModule } from '@nestjs/passport';
+import { MesssagingModule } from './messsaging/messsaging.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { PassportModule } from '@nestjs/passport';
     RoleModule,
     SessionModule,
     PassportModule,
+    MesssagingModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

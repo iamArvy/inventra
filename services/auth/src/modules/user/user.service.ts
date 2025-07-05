@@ -10,6 +10,7 @@ import { SecretService } from 'src/common/secret/secret.service';
 import { UpdatePasswordData } from 'src/common/dto/app.inputs';
 import { Status } from 'src/common/dto/app.response';
 import { BaseService } from 'src/common/base/base.service';
+import { UserEvent } from 'src/messsaging/event/user.event';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -17,6 +18,7 @@ export class UserService extends BaseService {
     private repo: UserRepo,
     private tokenService: TokenService,
     private secret: SecretService,
+    private event: UserEvent, // Assuming this is imported correctly
   ) {
     super();
   }
@@ -54,13 +56,13 @@ export class UserService extends BaseService {
         throw new UnauthorizedException('Email already verified');
       const token = await this.tokenService.generateEmailVerificationToken(
         user.id,
-        user.email,
+        email,
       );
 
-      console.log(token);
-
-      // Here you would typically send a verification email with a link
-      // containing a token or code to verify the email.
+      this.event.emailVerificationRequested({
+        token,
+        email,
+      });
       return { success: true };
     } catch (error) {
       this.handleError(error, 'UserService.requestEmailVerification');
@@ -97,7 +99,10 @@ export class UserService extends BaseService {
         user.id,
         user.email,
       );
-      console.log(token);
+      this.event.passwordResetRequested({
+        token,
+        email,
+      });
       return { success: true };
     } catch (error) {
       this.handleError(error, 'UserService.requestPasswordResetToken');

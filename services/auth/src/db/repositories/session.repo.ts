@@ -18,6 +18,20 @@ export class SessionRepo {
     return this.prisma.session.findMany({ where: { userId } });
   }
 
+  findByUserIdAndDevice(
+    userId: string,
+    userAgent: string,
+    ipAddress: string,
+  ): Promise<Session | null> {
+    return this.prisma.session.findFirst({
+      where: {
+        userId,
+        userAgent,
+        ipAddress,
+      },
+    });
+  }
+
   findUserActiveSessions(userId: string): Promise<Session[]> {
     const now = new Date();
     return this.prisma.session.findMany({
@@ -31,7 +45,7 @@ export class SessionRepo {
   ): Promise<any> {
     return this.prisma.session.update({
       where: { id },
-      data: { hashedRefreshToken },
+      data: { hashedRefreshToken, expiresAt: new Date(Date.now() + 604800000) },
     });
   }
 
