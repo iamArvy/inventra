@@ -14,6 +14,10 @@ export class RegisterData extends LoginData {
   userId: string;
 }
 
+export class RegisterInput extends AuthInput<RegisterData> {
+  storeId: string;
+}
+
 export class UpdateEmailInput {
   email: string;
 }

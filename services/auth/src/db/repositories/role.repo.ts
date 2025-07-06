@@ -42,4 +42,19 @@ export class RoleRepo {
       where: { id },
     });
   }
+
+  async createOwner(storeId: string) {
+    return this.create({
+      name: 'owner',
+      description: 'Owner of the store',
+      storeId,
+      RolePermissions: {
+        create: {
+          permission: {
+            connect: { name: 'all' }, // Assuming 'all' permission exists
+          },
+        },
+      },
+    });
+  }
 }

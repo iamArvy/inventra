@@ -52,9 +52,10 @@ message RegisterData {
 }
 
 message RegisterRequest {
-  RegisterData data = 1;
-  string userAgent = 2;
-  string ipAddress = 3;
+  string storeId = 1;
+  RegisterData data = 2;
+  string userAgent = 3;
+  string ipAddress = 4;
 }
 
 message AuthResponse {

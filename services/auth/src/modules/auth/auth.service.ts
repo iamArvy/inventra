@@ -93,29 +93,17 @@ export class AuthService extends BaseService {
   }
 
   async signup(
+    storeId: string,
     data: RegisterData,
     userAgent: string,
     ipAddress: string,
-    storeId: string,
   ): Promise<AuthResponse> {
     try {
       if (!data) throw new UnauthorizedException('Invalid credentials');
       const exists = await this.userRepo.findByEmail(data.email);
       if (exists) throw new UnauthorizedException('User already exists');
       const hash = await this.secret.create(data.password);
-      // on signup create a owner role for the store and assign it to the user
-      const role = await this.roleRepo.create({
-        name: 'owner',
-        description: 'Owner of the store',
-        storeId,
-        RolePermissions: {
-          create: {
-            permission: {
-              connect: { name: 'all' }, // Assuming 'all' permission exists
-            },
-          },
-        },
-      });
+      const role = await this.roleRepo.createOwner(storeId);
       if (!role) throw new UnauthorizedException('Role creation failed');
       const user = await this.userRepo.create({
         email: data.email,
@@ -176,28 +164,31 @@ export class AuthService extends BaseService {
     }
   }
 
+  private async verifyRefreshToken(refresh_token: string): Promise<string> {
+    const { sub: id } =
+      await this.tokenService.verifyRefreshToken(refresh_token);
+    const session = await this.sessionRepo.findById(id);
+    if (!session || session.revokedAt) {
+      throw new UnauthorizedException('Session not found or revoked');
+    }
+    if (session.expiresAt < new Date()) {
+      throw new UnauthorizedException('Session expired');
+    }
+
+    // Check if the session's hashed refresh token matches the provided refresh token
+    if (!session.hashedRefreshToken)
+      throw new UnauthorizedException('Session has no refresh token');
+
+    await this.secret.compare(session.hashedRefreshToken, refresh_token);
+    return session.id;
+  }
+
   async refreshToken(
     refresh_token: string,
   ): Promise<{ token: string; expiresIn: number }> {
     try {
-      const { sub: id } = await this.tokenService.verifyToken<{
-        sub: string;
-      }>(refresh_token);
-      const session = await this.sessionRepo.findById(id);
-      if (!session || session.revokedAt) {
-        throw new UnauthorizedException('Session not found or revoked');
-      }
-      if (session.expiresAt && session.expiresAt < new Date()) {
-        throw new UnauthorizedException('Session expired');
-      }
-
-      // Check if the session's hashed refresh token matches the provided refresh token
-      if (!session.hashedRefreshToken)
-        throw new UnauthorizedException('Session has no refresh token');
-
-      await this.secret.compare(session.hashedRefreshToken, refresh_token);
-
-      const user = await this.userRepo.findById(session.id);
+      const sessionId = await this.verifyRefreshToken(refresh_token);
+      const user = await this.userRepo.findById(sessionId);
       if (!user) throw new NotFoundException('User not found');
       // Generate new tokens
       const accessToken = await this.tokenService.generateAccessToken(
@@ -214,13 +205,8 @@ export class AuthService extends BaseService {
 
   async logout(token: string): Promise<Status> {
     try {
-      const { sub } = await this.tokenService.verifyRefreshToken(token);
-      const session = await this.sessionRepo.findById(sub);
-      if (!session) throw new NotFoundException('Session not found');
-      if (session.revokedAt) {
-        throw new UnauthorizedException('Session already revoked');
-      }
-      await this.sessionRepo.update(session.id, {
+      const sessionId = await this.verifyRefreshToken(token);
+      await this.sessionRepo.update(sessionId, {
         hashedRefreshToken: null,
         expiresAt: new Date(),
         revokedAt: new Date(),

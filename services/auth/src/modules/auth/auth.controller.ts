@@ -3,7 +3,7 @@ import { GrpcMethod } from '@nestjs/microservices';
 import {
   AuthInput,
   LoginData,
-  RegisterData,
+  RegisterInput,
   TokenInput,
 } from 'src/common/dto/app.inputs';
 import { AuthService } from './auth.service';
@@ -18,8 +18,13 @@ export class AuthController {
   }
 
   @GrpcMethod('AuthService')
-  register(data: AuthInput<RegisterData>) {
-    return this.service.signup(data.data, data.userAgent, data.ipAddress);
+  register(data: RegisterInput) {
+    return this.service.signup(
+      data.storeId,
+      data.data,
+      data.userAgent,
+      data.ipAddress,
+    );
   }
 
   @GrpcMethod('AuthService')
