@@ -15,3 +15,9 @@ export class UpdateRoleInput {
   storeId: string;
   data: RoleData;
 }
+
+export class PermissionsOperations {
+  id: string;
+  storeId: string;
+  permissions: string[];
+}

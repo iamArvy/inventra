@@ -1,6 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { CreateRoleInput, UpdateRoleInput } from './dto/role.inputs';
+import {
+  CreateRoleInput,
+  PermissionsOperations,
+  UpdateRoleInput,
+} from './dto/role.inputs';
 import { RoleService } from './role.service';
 
 @Controller('role')
@@ -35,5 +39,15 @@ export class RoleController {
   @GrpcMethod('RoleService')
   delete({ id }: { id: string }) {
     return this.service.delete(id);
+  }
+
+  @GrpcMethod('RoleService')
+  attachPermissions({ id, storeId, permissions }: PermissionsOperations) {
+    return this.service.attachPermissions(id, permissions, storeId);
+  }
+
+  @GrpcMethod('RoleService')
+  detachPermissions({ id, storeId, permissions }: PermissionsOperations) {
+    return this.service.detachPermissions(id, permissions, storeId);
   }
 }

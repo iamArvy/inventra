@@ -1,41 +1,43 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { PermissionService } from './permission.service';
+import { IdInput } from 'src/common/dto/app.inputs';
+import {
+  CreatePermissionInput,
+  UpdatePermissionInput,
+} from './dto/permission.inputs';
 
 @Controller('permission')
 export class PermissionController {
   constructor(private readonly service: PermissionService) {}
 
   @GrpcMethod('PermissionService', 'Create')
-  create(data: { name: string; description?: string }) {
+  create(data: CreatePermissionInput) {
     return this.service.create(data);
   }
 
   @GrpcMethod('PermissionService', 'FindAll')
-  findAll() {
+  list() {
     return this.service.findAll();
   }
 
   @GrpcMethod('PermissionService', 'FindById')
-  findById(data: { id: string }) {
-    return this.service.findById(data.id);
+  findById({ id }: IdInput) {
+    return this.service.findById(id);
   }
 
   @GrpcMethod('PermissionService', 'ListRolePermissions')
-  listRolePermissions(data: { roleId: string }) {
-    return this.service.listRolePermissions(data.roleId);
+  listRolePermissions({ id }: IdInput) {
+    return this.service.listRolePermissions(id);
   }
 
   @GrpcMethod('PermissionService', 'Update')
-  update(data: { id: string; name?: string; description?: string }) {
-    return this.service.update(data.id, {
-      name: data.name,
-      description: data.description,
-    });
+  update({ id, data }: UpdatePermissionInput) {
+    return this.service.update(id, data);
   }
 
   @GrpcMethod('PermissionService', 'Delete')
-  delete(data: { id: string }) {
-    return this.service.delete(data.id);
+  delete({ id }: IdInput) {
+    return this.service.delete(id);
   }
 }

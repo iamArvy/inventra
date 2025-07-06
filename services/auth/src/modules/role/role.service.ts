@@ -16,11 +16,21 @@ export class RoleService extends BaseService {
 
   async create(storeId: string, data: RoleData) {
     try {
+      const { permissions } = data;
       const exist = await this.repo.findRoleByNameAndStore(storeId, data.name);
       if (exist) throw new BadRequestException('Role already exists in store');
       const role = await this.repo.create({ ...data, storeId });
       if (!role) {
         throw new BadRequestException('Failed to create role');
+      }
+      if (permissions && permissions.length > 0) {
+        const updatedRole = await this.repo.addPermissionsToRole(
+          role.id,
+          permissions,
+        );
+        if (!updatedRole) {
+          throw new BadRequestException('Failed to add permissions to role');
+        }
       }
       await this.cache.delete(CacheKeys.storeRoles(storeId));
       this.logger.log(`Role created: ${role.id} in store: ${storeId}`);
@@ -91,7 +101,7 @@ export class RoleService extends BaseService {
     }
   }
 
-  async addPermissions(id: string, permissions: string[], storeId: string) {
+  async attachPermissions(id: string, permissions: string[], storeId: string) {
     try {
       const role = await this.repo.findByIdOrThrow(id);
       if (role.storeId !== storeId)
@@ -108,7 +118,7 @@ export class RoleService extends BaseService {
     }
   }
 
-  async removePermissions(id: string, permissions: string[], storeId: string) {
+  async detachPermissions(id: string, permissions: string[], storeId: string) {
     try {
       const role = await this.repo.findByIdOrThrow(id);
       if (role.storeId !== storeId)

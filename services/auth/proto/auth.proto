@@ -33,9 +33,48 @@ service RoleService {
   rpc Create(CreateRoleInput) returns (RoleData);
   rpc Update(UpdateRoleInput) returns (Status);
   rpc Find(IdInput) returns (RoleData);
-  rpc List(google.protobuf.Empty) returns (RoleList);
+  rpc List(IdInput) returns (RoleList);
+  rpc AttachPermissions(PermissionsOperations) returns (Status);
+  rpc DetachPermissions(PermissionsOperations) returns (Status);
   rpc Delete(IdInput) returns (Status);
 }
+
+service PermissionService {
+  rpc Health(google.protobuf.Empty) returns (Status);
+  rpc Create(CreatePermissionInput) returns (PermissionData);
+  rpc Update(UpdatePermissionInput) returns (Status);
+  rpc Find(IdInput) returns (PermissionData);
+  rpc List(google.protobuf.Empty) returns (PermissionList);
+  rpc ListRolePermissions(IdInput) returns (PermissionList);
+  rpc Delete(IdInput) returns (Status);
+}
+
+message CreatePermissionInput {
+  string name = 1;
+  string description = 2;
+}
+
+message UpdatePermissionData {
+  optional string name = 1;
+  optional string description = 2;
+}
+message UpdatePermissionInput {
+  string id = 1;
+  optional UpdatePermissionData name = 2;
+}
+message PermissionData {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+}
+message PermissionList {
+  repeated PermissionData permissions = 1;
+}
+message PermissionsOperations {
+  string roleId = 1;
+  repeated string permissionIds = 2;
+}
+
 
 message IdInput {
   string id = 1;
