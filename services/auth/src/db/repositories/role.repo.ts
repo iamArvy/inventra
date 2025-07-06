@@ -57,9 +57,30 @@ export class RoleRepo {
       RolePermissions: {
         create: {
           permission: {
-            connect: { name: 'all' }, // Assuming 'all' permission exists
+            connectOrCreate: {
+              where: { name: 'all' },
+              create: { name: 'all' },
+            },
           },
         },
+      },
+    });
+  }
+
+  addPermissionsToRole(roleId: string, permissionIds: string[]) {
+    return this.prisma.rolePermissions.createMany({
+      data: permissionIds.map((permissionId) => ({
+        roleId,
+        permissionId,
+      })),
+    });
+  }
+
+  removePermissionsFromRole(roleId: string, permissionIds: string[]) {
+    return this.prisma.rolePermissions.deleteMany({
+      where: {
+        roleId,
+        permissionId: { in: permissionIds },
       },
     });
   }

@@ -41,7 +41,7 @@ model Role {
   @@unique([name, storeId])
 }
 
-model Permissions {
+model Permission {
   id              String            @id @default(cuid())
   name            String            @unique
   description     String?
@@ -51,13 +51,13 @@ model Permissions {
 }
 
 model RolePermissions {
-  id           String      @id @default(cuid())
+  id           String     @id @default(cuid())
   permissionId String
   roleId       String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  permission   Permissions @relation(fields: [permissionId], references: [id])
-  role         Role        @relation(fields: [roleId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id])
 
   @@unique([permissionId, roleId])
 }

@@ -90,4 +90,43 @@ export class RoleService extends BaseService {
       this.handleError(error, 'RoleService.deleteRole');
     }
   }
+
+  async addPermissions(id: string, permissions: string[], storeId: string) {
+    try {
+      const role = await this.repo.findByIdOrThrow(id);
+      if (role.storeId !== storeId)
+        throw new NotFoundException('Role not found in this store');
+      const updatedRole = await this.repo.addPermissionsToRole(id, permissions);
+      if (!updatedRole) {
+        throw new BadRequestException('Failed to add permissions to role');
+      }
+      await this.cache.delete(CacheKeys.rolePermissions(id));
+      this.logger.log(`Permissions added to role: ${id} in store: ${storeId}`);
+      return { success: true };
+    } catch (error) {
+      this.handleError(error, 'RoleService.addPermissions');
+    }
+  }
+
+  async removePermissions(id: string, permissions: string[], storeId: string) {
+    try {
+      const role = await this.repo.findByIdOrThrow(id);
+      if (role.storeId !== storeId)
+        throw new NotFoundException('Role not found in this store');
+      const updatedRole = await this.repo.removePermissionsFromRole(
+        id,
+        permissions,
+      );
+      if (!updatedRole) {
+        throw new BadRequestException('Failed to remove permissions from role');
+      }
+      await this.cache.delete(CacheKeys.rolePermissions(id));
+      this.logger.log(
+        `Permissions removed from role: ${id} in store: ${storeId}`,
+      );
+      return { success: true };
+    } catch (error) {
+      this.handleError(error, 'RoleService.removePermissions');
+    }
+  }
 }
