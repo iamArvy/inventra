@@ -48,4 +48,13 @@ export class UserController {
   verifyEmail({ token }: TokenInput) {
     return this.service.verifyEmail(token);
   }
+
+  @GrpcMethod('UserService')
+  list() {}
+
+  @GrpcMethod('UserService')
+  create() {}
+
+  @GrpcMethod('UserService')
+  delete() {}
 }
