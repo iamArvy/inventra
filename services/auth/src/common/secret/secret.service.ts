@@ -1,10 +1,12 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as argon from 'argon2';
+import { BaseService } from '../base/base.service';
 
 @Injectable()
-export class SecretService {
-  private logger = new Logger(SecretService.name);
+export class SecretService extends BaseService {
+  constructor() {
+    super();
+  }
 
   async compare(hash: string, secret: string): Promise<boolean> {
     try {
@@ -12,8 +14,7 @@ export class SecretService {
       if (!valid) throw new UnauthorizedException('Invalid credentials');
       return true;
     } catch (error) {
-      this.logger.log(error);
-      throw new RpcException(error);
+      this.handleError(error, 'SecretService.compare');
     }
   }
 

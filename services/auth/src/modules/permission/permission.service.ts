@@ -31,7 +31,7 @@ export class PermissionService extends BaseService {
   }
 
   // findAll
-  async findAll() {
+  async list() {
     try {
       const cachedPermissions = await this.cache.get<Permission[]>(
         CacheKeys.permissions,
@@ -39,7 +39,7 @@ export class PermissionService extends BaseService {
       if (cachedPermissions) {
         return cachedPermissions;
       }
-      const permissions = await this.repo.findAll();
+      const permissions = await this.repo.list();
       await this.cache.set(CacheKeys.permissions, permissions, '4h');
       return permissions;
     } catch (error) {

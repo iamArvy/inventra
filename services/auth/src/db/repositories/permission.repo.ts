@@ -9,8 +9,8 @@ export class PermissionRepo {
     return this.prisma.permission.create({ data });
   }
 
-  async findAll() {
-    return this.prisma.role.findMany();
+  async list() {
+    return this.prisma.permission.findMany();
   }
 
   async findById(id: string) {

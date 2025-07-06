@@ -53,3 +53,9 @@ export class ResetPasswordMessage {
   token: string;
   password: string;
 }
+
+export class PermissionsOperations {
+  id: string;
+  storeId: string;
+  permissions: string[];
+}

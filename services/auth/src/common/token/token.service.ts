@@ -53,6 +53,9 @@ export class TokenService {
     );
   }
 
+  async generateClientToken(clientId: string): Promise<string> {
+    return await this.generateToken({ sub: clientId, type: 'client' }, '1h');
+  }
   async verifyToken<T extends object>(token: string): Promise<T> {
     try {
       return this.jwtService.verifyAsync<T>(token);

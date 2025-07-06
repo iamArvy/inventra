@@ -12,6 +12,7 @@ import { LoginData, RegisterData } from 'src/common/dto/app.inputs';
 import { BaseService } from 'src/common/base/base.service';
 import { UserEvent } from 'src/messsaging/event/user.event';
 import { RoleRepo } from 'src/db/repositories/role.repo';
+import { ClientRepo } from 'src/db/repositories/client.repo';
 
 @Injectable()
 export class AuthService extends BaseService {
@@ -22,6 +23,7 @@ export class AuthService extends BaseService {
     private secret: SecretService,
     private userEvent: UserEvent,
     private roleRepo: RoleRepo,
+    private clientRepo: ClientRepo,
   ) {
     super();
   }
@@ -214,6 +216,18 @@ export class AuthService extends BaseService {
       return { success: true };
     } catch (error) {
       this.handleError(error, 'AuthService.logout');
+    }
+  }
+
+  async getClientToken(id: string, secret: string): Promise<string> {
+    try {
+      const client = await this.clientRepo.findById(id);
+      if (!client) throw new NotFoundException('Client not found');
+      await this.secret.compare(client.hashedSecret, secret);
+      const token = await this.tokenService.generateClientToken(client.id);
+      return token;
+    } catch (error) {
+      this.handleError(error, 'AuthService.getClientToken');
     }
   }
 }

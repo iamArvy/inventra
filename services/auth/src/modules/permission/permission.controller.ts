@@ -18,7 +18,7 @@ export class PermissionController {
 
   @GrpcMethod('PermissionService', 'FindAll')
   list() {
-    return this.service.findAll();
+    return this.service.list();
   }
 
   @GrpcMethod('PermissionService', 'FindById')
