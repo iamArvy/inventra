@@ -9,6 +9,7 @@ service AuthService {
   rpc Register(RegisterRequest) returns (AuthResponse);
   rpc Login(LoginRequest) returns (AuthResponse);
   rpc RefreshToken(TokenRequest) returns (AuthToken);
+  rpc GetClientToken(ClientTokenRequest) returns (ClientTokenResponse);
   rpc Logout(TokenRequest) returns (Status);
 }
 
@@ -49,6 +50,61 @@ service PermissionService {
   rpc Delete(IdInput) returns (Status);
 }
 
+service ClientService {
+  rpc Health(google.protobuf.Empty) returns (Status);
+  rpc Create(CreateClientInput) returns (ClientData);
+  rpc Update(UpdateClientInput) returns (Status);
+  rpc Get(IdInput) returns (ClientData);
+  rpc List(IdInput) returns (ClientList);
+  rpc Delete(IdInput) returns (Status);
+  rpc RefreshSecret(IdInput) returns (ClientData);
+  rpc AttachPermissions(PermissionsOperations) returns (Status);
+  rpc DetachPermissions(PermissionsOperations) returns (Status);
+}
+
+message ClientTokenRequest{
+  string id = 1;
+  string secret = 2;
+}
+
+message ClientTokenResponse {
+  string token = 1;
+}
+
+message ClientInput {
+  string name = 1;
+  string description = 2;
+}
+
+message CreateClientInput {
+  string storeId = 1;
+  ClientInput data = 2;
+}
+
+message UpdateClientData {
+  optional string name = 1;
+  optional string description = 2;
+}
+
+message UpdateClientInput {
+  string id = 1;
+  optional UpdateClientData data = 2;
+}
+
+message ClientData {
+  string id = 1;
+  string storeId = 2;
+  string name = 3;
+  string description = 4;
+  string createdAt = 5;
+  string updatedAt = 6;
+  repeated string permissions = 7;
+}
+
+message ClientList {
+  repeated ClientData clients = 1;
+}
+
 message CreatePermissionInput {
   string name = 1;
   string description = 2;
@@ -71,7 +127,7 @@ message PermissionList {
   repeated PermissionData permissions = 1;
 }
 message PermissionsOperations {
-  string roleId = 1;
+  string id = 1;
   repeated string permissionIds = 2;
 }
 

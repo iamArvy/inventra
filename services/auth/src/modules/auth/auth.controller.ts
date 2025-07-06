@@ -7,6 +7,7 @@ import {
   TokenInput,
 } from 'src/common/dto/app.inputs';
 import { AuthService } from './auth.service';
+import { ClientTokenRequest } from './auth.inputs';
 
 @Controller('auth')
 export class AuthController {
@@ -40,5 +41,10 @@ export class AuthController {
   @GrpcMethod('AuthService')
   logout({ token }: TokenInput) {
     return this.service.logout(token);
+  }
+
+  @GrpcMethod('AuthService')
+  getClientToken({ id, secret }: ClientTokenRequest) {
+    return this.service.getClientToken(id, secret);
   }
 }
