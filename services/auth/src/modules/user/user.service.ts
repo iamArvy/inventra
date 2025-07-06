@@ -30,6 +30,7 @@ export class UserService extends BaseService {
       await this.secret.compare(user.passwordHash, data.oldPassword);
       const hash = await this.secret.create(data.newPassword);
       await this.repo.updatePassword(id, hash);
+      this.logger.log(`Password updated for user ${id}`);
       return { success: true };
     } catch (error) {
       this.handleError(error, 'UserService.updatePassword');
@@ -42,6 +43,11 @@ export class UserService extends BaseService {
       if (!user) throw new UnauthorizedException('User not Found');
       await this.repo.updateEmail(id, email);
       await this.repo.updateEmailVerified(id, false);
+      this.event.updated({
+        userId: id,
+        email,
+      });
+      this.logger.log(`Email updated for user ${id}`);
       return { success: true };
     } catch (error) {
       this.handleError(error, 'UserService.updateEmail');
@@ -63,6 +69,7 @@ export class UserService extends BaseService {
         token,
         email,
       });
+      this.logger.log(`Email verification requested for user ${user.id}`);
       return { success: true };
     } catch (error) {
       this.handleError(error, 'UserService.requestEmailVerification');
@@ -80,6 +87,11 @@ export class UserService extends BaseService {
           'Email from token does not match user email',
         );
       await this.repo.updateEmailVerified(sub, true);
+      this.event.emailVerified({
+        userId: sub,
+        email,
+      });
+      this.logger.log(`Email verified for user ${sub}`);
       return { success: true };
     } catch (error) {
       this.handleError(error, 'UserService.verifyEmail');
@@ -103,6 +115,7 @@ export class UserService extends BaseService {
         token,
         email,
       });
+      this.logger.log(`Password reset token requested for user ${user.id}`);
       return { success: true };
     } catch (error) {
       this.handleError(error, 'UserService.requestPasswordResetToken');
@@ -119,6 +132,7 @@ export class UserService extends BaseService {
         throw new UnauthorizedException('User Email mismatched');
       const hash = await this.secret.create(password);
       await this.repo.updatePassword(user.id, hash);
+      this.logger.log(`Password reset for user ${user.id}`);
       return { success: true };
     } catch (error) {
       this.handleError(error, 'UserService.resetPassword');

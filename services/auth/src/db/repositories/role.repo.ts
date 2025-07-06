@@ -24,9 +24,15 @@ export class RoleRepo {
     });
   }
 
-  async findRoleByName(name: string) {
+  async findRoleByNameAndStore(storeId: string, name: string) {
     return await this.prisma.role.findUnique({
-      where: { name },
+      where: { name_storeId: { name, storeId } }, // storeId should be provided
+    });
+  }
+
+  listByStore(storeId: string) {
+    return this.prisma.role.findMany({
+      where: { storeId },
     });
   }
 

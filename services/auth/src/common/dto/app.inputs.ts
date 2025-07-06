@@ -53,14 +53,3 @@ export class ResetPasswordMessage {
   token: string;
   password: string;
 }
-
-export class RoleData {
-  name: string;
-}
-
-// export class UpdateRoleData implements PartialType(RoleData)
-
-export class UpdateRoleInput {
-  id: string;
-  data: RoleData;
-}

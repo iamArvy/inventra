@@ -8,6 +8,7 @@ import { SessionModule } from './modules/session/session.module';
 import { PassportModule } from '@nestjs/passport';
 import { MesssagingModule } from './messsaging/messsaging.module';
 import { AppController } from './app.controller';
+import { PermissionModule } from './modules/permission/permission.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AppController } from './app.controller';
     SessionModule,
     PassportModule,
     MesssagingModule,
+    PermissionModule,
   ],
   controllers: [AppController],
 })
