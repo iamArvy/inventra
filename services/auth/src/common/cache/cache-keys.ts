@@ -7,5 +7,7 @@ export const CacheKeys = {
   client: (clientId: string) => `client:${clientId}`,
   storeClients: (storeId: string) => `clients:${storeId}`,
   clientPermissions: (clientId: string) => `client_permissions:${clientId}`,
+  user: (userId: string) => `user: ${userId}`,
+  storeUsers: (storeId: string) => `store_users: ${storeId}`,
   // add more as needed
 };

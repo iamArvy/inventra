@@ -13,6 +13,7 @@ import { BaseService } from 'src/common/base/base.service';
 import { UserEvent } from 'src/messsaging/event/user.event';
 import { RoleRepo } from 'src/db/repositories/role.repo';
 import { ClientRepo } from 'src/db/repositories/client.repo';
+import { UserDto } from '../user/dto/user.dto';
 
 @Injectable()
 export class AuthService extends BaseService {
@@ -108,7 +109,7 @@ export class AuthService extends BaseService {
       const role = await this.roleRepo.createOwner(storeId);
       if (!role) throw new UnauthorizedException('Role creation failed');
       const user = await this.userRepo.create({
-        email: data.email,
+        ...data,
         passwordHash: hash,
         storeId,
         role: { connect: { id: role.id } },
@@ -116,10 +117,8 @@ export class AuthService extends BaseService {
 
       if (!user) throw new UnauthorizedException('User creation failed');
 
-      this.userEvent.created({
-        userId: user.id,
-        email: user.email,
-      });
+      const pUser = new UserDto(user);
+      this.userEvent.created(pUser);
 
       const token = await this.tokenService.generateEmailVerificationToken(
         user.id,

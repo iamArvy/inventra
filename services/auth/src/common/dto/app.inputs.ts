@@ -11,7 +11,8 @@ export class LoginData {
 }
 
 export class RegisterData extends LoginData {
-  userId: string;
+  // userId: string;
+  name: string;
 }
 
 export class RegisterInput extends AuthInput<RegisterData> {

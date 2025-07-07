@@ -38,16 +38,16 @@ export class UserRepo {
     });
   }
 
-  async addRole(id: string, roleId: string) {
+  listByStore(storeId: string) {
+    return this.prisma.user.findMany({
+      where: { storeId },
+    });
+  }
+
+  deactivate(id: string) {
     return this.prisma.user.update({
       where: { id },
-      data: {
-        role: {
-          create: {
-            roleId,
-          },
-        },
-      },
+      data: { deletedAt: new Date() },
     });
   }
 }

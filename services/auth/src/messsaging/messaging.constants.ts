@@ -50,6 +50,7 @@ export enum UserEvents {
   USER_SESSION_DELETED = 'user.session.deleted',
   USER_SESSION_EXPIRED = 'user.session.expired',
   USER_NEW_DEVICE_LOGIN = 'user.new_device.login',
+  USER_DEACTIVATED = 'user.deactivated',
 }
 
 export const Events = {

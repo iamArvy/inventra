@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Events } from '../messaging.constants';
 import { BaseClientService } from '../base-client.service';
+import { UserDto } from 'src/modules/user/dto/user.dto';
 
 @Injectable()
 export class UserEvent extends BaseClientService {
-  created(data: { userId: string; email: string }) {
+  created(data: UserDto) {
     this.emit(Events.USER_CREATED, data);
   }
   updated(data: { userId: string; email: string }) {
@@ -29,6 +30,10 @@ export class UserEvent extends BaseClientService {
     ipAddress: string;
   }) {
     this.emit(Events.USER_NEW_DEVICE_LOGIN, data);
+  }
+
+  deactivated(id: string) {
+    this.emit(Events.USER_DEACTIVATED, { id });
   }
   // passwordChanged(data: { userId: string }) {
   //   this.emit(Events.USER_PASSWORD_CHANGED, data);

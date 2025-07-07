@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
   EmailData,
+  IdInput,
   RequestPasswordResetMessage,
   ResetPasswordMessage,
   TokenInput,
@@ -9,6 +10,7 @@ import {
   UserInput,
 } from 'src/common/dto/app.inputs';
 import { UserService } from './user.service';
+import { CreateUserInput, DeleteUserInput } from './dto/user.inputs';
 
 @Controller('user')
 export class UserController {
@@ -50,11 +52,17 @@ export class UserController {
   }
 
   @GrpcMethod('UserService')
-  list() {}
+  list({ id }: IdInput) {
+    return this.service.listStoreUsers(id);
+  }
 
   @GrpcMethod('UserService')
-  create() {}
+  create({ id, data, roleId }: CreateUserInput) {
+    return this.service.create(id, data, roleId);
+  }
 
   @GrpcMethod('UserService')
-  delete() {}
+  deactivate({ id, storeId }: DeleteUserInput) {
+    return this.service.deactivate(id, storeId);
+  }
 }
