@@ -12,7 +12,7 @@ import { SecretService } from 'src/common/secret/secret.service';
 import { UpdatePasswordData } from 'src/common/dto/app.inputs';
 import { Status } from 'src/common/dto/app.response';
 import { BaseService } from 'src/common/base/base.service';
-import { UserEvent } from 'src/messsaging/event/user.event';
+import { UserEvent } from 'src/messaging/event/user.event';
 import { randomBytes } from 'crypto';
 import { UserData } from './dto/user.inputs';
 import { UserDto } from './dto/user.dto';

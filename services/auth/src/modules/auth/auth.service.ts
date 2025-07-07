@@ -10,7 +10,7 @@ import { TokenService } from 'src/common/token/token.service';
 import { SecretService } from 'src/common/secret/secret.service';
 import { LoginData, RegisterData } from 'src/common/dto/app.inputs';
 import { BaseService } from 'src/common/base/base.service';
-import { UserEvent } from 'src/messsaging/event/user.event';
+import { UserEvent } from 'src/messaging/event/user.event';
 import { RoleRepo } from 'src/db/repositories/role.repo';
 import { ClientRepo } from 'src/db/repositories/client.repo';
 import { UserDto } from '../user/dto/user.dto';

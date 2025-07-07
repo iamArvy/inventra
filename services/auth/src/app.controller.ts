@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { UserEvent } from './messsaging/event/user.event';
+import { UserEvent } from './messaging/event/user.event';
 
 @Controller()
 export class AppController {
