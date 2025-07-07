@@ -41,6 +41,14 @@ export class UserRepo {
   listByStore(storeId: string) {
     return this.prisma.user.findMany({
       where: { storeId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        storeId: true,
+        roleId: true,
+        createdAt: true,
+      },
     });
   }
 
