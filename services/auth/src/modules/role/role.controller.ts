@@ -1,8 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { CreateRoleInput, UpdateRoleInput } from './dto/role.inputs';
+import { CreateRoleInput, UpdateRoleInput } from './role.inputs';
 import { RoleService } from './role.service';
 import { PermissionsOperations } from 'src/common/dto/app.inputs';
+import { RoleDto, RoleList } from './role.dto';
+import { Status } from 'src/common/dto/app.response';
 
 @Controller('role')
 export class RoleController {
@@ -14,37 +16,45 @@ export class RoleController {
   }
 
   @GrpcMethod('RoleService')
-  create(data: CreateRoleInput) {
-    return this.service.create(data.storeId, data.data);
+  create({ id, data, permissions }: CreateRoleInput): Promise<RoleDto> {
+    return this.service.create(id, data, permissions);
   }
 
   @GrpcMethod('RoleService')
-  find({ id }: { id: string }) {
-    return this.service.find(id);
+  get({ id }: { id: string }): Promise<RoleDto> {
+    return this.service.get(id);
   }
 
   @GrpcMethod('RoleService')
-  update({ id, storeId, data }: UpdateRoleInput) {
+  update({ id, storeId, data }: UpdateRoleInput): Promise<Status> {
     return this.service.update(id, storeId, data);
   }
 
   @GrpcMethod('RoleService')
-  list({ id }: { id: string }) {
+  list({ id }: { id: string }): Promise<RoleList> {
     return this.service.listByStore(id);
   }
 
   @GrpcMethod('RoleService')
-  delete({ id }: { id: string }) {
+  delete({ id }: { id: string }): Promise<Status> {
     return this.service.delete(id);
   }
 
   @GrpcMethod('RoleService')
-  attachPermissions({ id, storeId, permissions }: PermissionsOperations) {
+  attachPermissions({
+    id,
+    storeId,
+    permissions,
+  }: PermissionsOperations): Promise<Status> {
     return this.service.attachPermissions(id, permissions, storeId);
   }
 
   @GrpcMethod('RoleService')
-  detachPermissions({ id, storeId, permissions }: PermissionsOperations) {
+  detachPermissions({
+    id,
+    storeId,
+    permissions,
+  }: PermissionsOperations): Promise<Status> {
     return this.service.detachPermissions(id, permissions, storeId);
   }
 }

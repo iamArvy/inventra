@@ -48,6 +48,7 @@ export class UserRepo {
         storeId: true,
         roleId: true,
         createdAt: true,
+        emailVerified: true,
       },
     });
   }

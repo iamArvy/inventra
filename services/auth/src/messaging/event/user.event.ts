@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Events } from '../messaging.constants';
 import { BaseClientService } from '../base-client.service';
-import { UserDto } from 'src/modules/user/dto/user.dto';
+import { UserDto } from 'src/modules/user/user.dto';
 
 @Injectable()
 export class UserEvent extends BaseClientService {

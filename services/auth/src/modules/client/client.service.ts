@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { BaseService } from 'src/common/services/base/base.service';
 import { ClientRepo } from 'src/db/repositories/client.repo';
-import { ClientData } from './dto/client.inputs';
+import { ClientInput } from './client.inputs';
 import { randomBytes } from 'crypto';
 import { SecretService } from 'src/common/services/secret/secret.service';
-import { ClientDto } from './dto/client.dto';
+import { ClientDto, ClientList, Secret } from './client.dto';
 import { CacheKeys } from 'src/cache/cache-keys';
 import { CacheService } from 'src/cache/cache.service';
+import { Status } from 'src/common/dto/app.response';
+import { Client } from 'generated/prisma';
 
 @Injectable()
 export class ClientService extends BaseService {
@@ -22,7 +24,11 @@ export class ClientService extends BaseService {
     return randomBytes(32).toString('hex'); // 64-char hex string
   }
   // create client
-  async create(storeId: string, data: ClientData) {
+  async create(
+    storeId: string,
+    data: ClientInput,
+    permissions: string[],
+  ): Promise<Client> {
     try {
       // Validate storeId and data
       if (!storeId || !data) {
@@ -30,7 +36,11 @@ export class ClientService extends BaseService {
       }
       const secret = this.generateSecret();
       const hashedSecret = await this.secretService.create(secret);
-      const client = await this.repo.create({ storeId, hashedSecret, ...data });
+      const client = await this.repo.create({
+        storeId,
+        hashedSecret,
+        ...data,
+      });
       if (!client) {
         throw new Error('Failed to create client');
       }
@@ -38,6 +48,9 @@ export class ClientService extends BaseService {
         `Client created with ID: ${client.id} in store: ${storeId}`,
         'ClientService.create',
       );
+      if (permissions && permissions.length > 0) {
+        await this.repo.attachPermissions(client.id, permissions);
+      }
       return client;
     } catch (error) {
       this.handleError(error, 'ClientService.create');
@@ -45,7 +58,11 @@ export class ClientService extends BaseService {
   }
 
   // update client
-  async update(id: string, storeId: string, data: Partial<ClientData>) {
+  async update(
+    id: string,
+    storeId: string,
+    data: Partial<ClientInput>,
+  ): Promise<Status> {
     try {
       // Validate id, storeId, and data
       if (!id || !storeId || !data) {
@@ -68,7 +85,7 @@ export class ClientService extends BaseService {
   }
 
   // generate secret
-  async refreshSecret(id: string) {
+  async refreshSecret(id: string): Promise<Secret> {
     try {
       // Validate id
       if (!id) {
@@ -92,7 +109,7 @@ export class ClientService extends BaseService {
   }
 
   // list client
-  async list(storeId: string) {
+  async list(storeId: string): Promise<ClientList> {
     try {
       // Validate storeId
       if (!storeId) {
@@ -107,7 +124,7 @@ export class ClientService extends BaseService {
           `Clients retrieved from cache for store ID: ${storeId}`,
           'ClientService.list',
         );
-        return cachedClients;
+        return { clients: cachedClients };
       }
       const clients = await this.repo.list(storeId);
       if (!clients || clients.length === 0) {
@@ -117,7 +134,7 @@ export class ClientService extends BaseService {
         `Clients listed for store ID: ${storeId}`,
         'ClientService.list',
       );
-      return clients;
+      return { clients };
     } catch (error) {
       this.handleError(error, 'ClientService.create');
     }

@@ -9,13 +9,12 @@ import {
 import { TokenService } from 'src/common/services/token/token.service';
 import { UserRepo } from 'src/db/repositories/user.repo';
 import { SecretService } from 'src/common/services/secret/secret.service';
-import { UpdatePasswordData } from 'src/common/dto/app.inputs';
 import { Status } from 'src/common/dto/app.response';
 import { BaseService } from 'src/common/services/base/base.service';
 import { UserEvent } from 'src/messaging/event/user.event';
 import { randomBytes } from 'crypto';
-import { UserData } from './dto/user.inputs';
-import { UserDto } from './dto/user.dto';
+import { UpdatePasswordData, UserData } from './user.inputs';
+import { UserDto, UserList } from './user.dto';
 import { CacheKeys } from 'src/cache/cache-keys';
 import { CacheService } from 'src/cache/cache.service';
 
@@ -148,7 +147,7 @@ export class UserService extends BaseService {
     }
   }
 
-  async listStoreUsers(id: string) {
+  async listStoreUsers(id: string): Promise<UserList> {
     try {
       const users = await this.repo.listByStore(id);
       return { users };
@@ -157,7 +156,11 @@ export class UserService extends BaseService {
     }
   }
 
-  async create(storeId: string, data: UserData, roleId: string) {
+  async create(
+    storeId: string,
+    data: UserData,
+    roleId: string,
+  ): Promise<UserDto> {
     try {
       const exists = await this.repo.findByEmail(data.email);
       if (exists)
@@ -179,7 +182,7 @@ export class UserService extends BaseService {
       this.logger.log(
         `New user: ${user.id} created in store: ${storeId} with role ${role.id}`,
       );
-      return { success: true };
+      return pUser;
     } catch (error) {
       this.handleError(error, `UserService.create`);
     }
@@ -207,6 +210,7 @@ export class UserService extends BaseService {
       await this.cache.delete(CacheKeys.user(id));
       await this.cache.delete(CacheKeys.storeUsers(user.storeId));
       this.event.deactivated(id);
+      return { success: true };
     } catch (error) {
       this.handleError(error, `UserService.delete`);
     }

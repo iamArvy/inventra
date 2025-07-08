@@ -3,7 +3,7 @@ import { Client } from 'generated/prisma';
 export class ClientDto {
   id: string;
   name: string;
-  description?: string;
+  description: string | null;
   storeId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -11,4 +11,12 @@ export class ClientDto {
   constructor(client: Client) {
     Object.assign(this, client);
   }
+}
+
+export class ClientList {
+  clients: ClientDto[];
+}
+
+export class Secret {
+  secret: string;
 }

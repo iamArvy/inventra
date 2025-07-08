@@ -9,5 +9,7 @@ export const CacheKeys = {
   clientPermissions: (clientId: string) => `client_permissions:${clientId}`,
   user: (userId: string) => `user: ${userId}`,
   storeUsers: (storeId: string) => `store_users: ${storeId}`,
+  userActiveSession: (id: string) => `user:${id}:activeSessions`,
+  session: (id: string) => `session: ${id}`,
   // add more as needed
 };

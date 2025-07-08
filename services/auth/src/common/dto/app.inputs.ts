@@ -1,39 +1,15 @@
 // import { PartialType } from "@nestjs/mapped-types";
 
-export class AuthInput<T> {
-  data: T;
-  userAgent: string;
-  ipAddress: string;
-}
-export class LoginData {
-  email: string;
-  password: string;
-}
-
-export class RegisterData extends LoginData {
-  // userId: string;
-  name: string;
-}
-
-export class RegisterInput extends AuthInput<RegisterData> {
-  storeId: string;
-}
-
-export class UpdateEmailInput {
-  email: string;
-}
-
-export class UserInput<T> {
+export class IdDataInput<T> {
   id: string;
   data: T;
 }
 
-export class UpdatePasswordData {
-  newPassword: string;
-  oldPassword: string;
+export class IdStoreDataInput<T> extends IdDataInput<T> {
+  storeId: string;
 }
 
-export class EmailData {
+export class EmailInput {
   email: string;
 }
 
@@ -43,16 +19,6 @@ export class TokenInput {
 
 export class IdInput {
   id: string;
-}
-
-export class RequestPasswordResetMessage {
-  id: string;
-  email: string;
-}
-
-export class ResetPasswordMessage {
-  token: string;
-  password: string;
 }
 
 export class PermissionsOperations {

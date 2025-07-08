@@ -4,6 +4,9 @@ import { PermissionRepo } from 'src/db/repositories/permission.repo';
 import { CacheKeys } from 'src/cache/cache-keys';
 import { Permission } from 'generated/prisma';
 import { CacheService } from 'src/cache/cache.service';
+import { PermissionDto, PermissionList } from './permission.dto';
+import { PermissionInput } from './permission.inputs';
+import { Status } from 'src/common/dto/app.response';
 
 @Injectable()
 export class PermissionService extends BaseService {
@@ -35,24 +38,24 @@ export class PermissionService extends BaseService {
   }
 
   // findAll
-  async list() {
+  async list(): Promise<PermissionList> {
     try {
       const cachedPermissions = await this.cache.get<Permission[]>(
         CacheKeys.permissions,
       );
       if (cachedPermissions) {
-        return cachedPermissions;
+        return { permissions: cachedPermissions };
       }
       const permissions = await this.repo.list();
       await this.cache.set(CacheKeys.permissions, permissions, '4h');
-      return permissions;
+      return { permissions };
     } catch (error) {
       this.handleError(error, 'PermissionService.findAll');
     }
   }
 
   // findById
-  async findById(id: string) {
+  async findById(id: string): Promise<PermissionDto> {
     try {
       const cachedPermission = await this.cache.get<Permission>(
         CacheKeys.permission(id),
@@ -71,13 +74,13 @@ export class PermissionService extends BaseService {
     }
   }
   // listRolePermissions
-  async listRolePermissions(roleId: string) {
+  async listRolePermissions(roleId: string): Promise<PermissionList> {
     try {
       const cachedPermissions = await this.cache.get<Permission[]>(
         CacheKeys.rolePermissions(roleId),
       );
       if (cachedPermissions) {
-        return cachedPermissions;
+        return { permissions: cachedPermissions };
       }
       const permissions = await this.repo.listByRole(roleId);
       if (!permissions || permissions.length === 0) {
@@ -88,14 +91,14 @@ export class PermissionService extends BaseService {
         permissions,
         '4h',
       );
-      return permissions;
+      return { permissions };
     } catch (error) {
       this.handleError(error, 'PermissionService.listRolePermissions');
     }
   }
 
   // update
-  async update(id: string, data: { name?: string; description?: string }) {
+  async update(id: string, data: Partial<PermissionInput>): Promise<Status> {
     try {
       await this.repo.findByIdOrThrow(id);
       const updatedPermission = await this.repo.update(id, data);
@@ -104,14 +107,14 @@ export class PermissionService extends BaseService {
       }
       await this.cache.delete(CacheKeys.permission(id));
       await this.cache.set(CacheKeys.permission(id), updatedPermission, '4h');
-      return updatedPermission;
+      return { success: true };
     } catch (error) {
       this.handleError(error, 'PermissionService.update');
     }
   }
 
   // delete
-  async delete(id: string) {
+  async delete(id: string): Promise<Status> {
     try {
       const permission = await this.repo.findByIdOrThrow(id);
       await this.repo.delete(id);

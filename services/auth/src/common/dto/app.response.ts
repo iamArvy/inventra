@@ -20,17 +20,6 @@
 //   @Field(() => TokenData)
 //   access: TokenData;
 // }
-
-interface TokenData {
-  token: string;
-  expiresIn: number;
-}
-
-export class AuthResponse {
-  access: TokenData;
-  refresh: TokenData;
-}
-
 export class Status {
   success: boolean;
 }

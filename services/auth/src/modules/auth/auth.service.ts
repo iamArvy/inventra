@@ -13,7 +13,7 @@ import { BaseService } from 'src/common/services/base/base.service';
 import { UserEvent } from 'src/messaging/event/user.event';
 import { RoleRepo } from 'src/db/repositories/role.repo';
 import { ClientRepo } from 'src/db/repositories/client.repo';
-import { UserDto } from '../user/dto/user.dto';
+import { UserDto } from '../user/user.dto';
 
 @Injectable()
 export class AuthService extends BaseService {

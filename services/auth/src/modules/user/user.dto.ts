@@ -7,9 +7,13 @@ export class UserDto {
   emailVerified: boolean;
   roleId: string;
   storeId: string;
-  createdAt: string;
+  createdAt: Date;
 
   constructor(user: User) {
     Object.assign(this, user);
   }
+}
+
+export class UserList {
+  users: UserDto[];
 }

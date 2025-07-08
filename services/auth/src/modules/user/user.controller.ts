@@ -1,68 +1,75 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
+import { UserService } from './user.service';
 import {
-  EmailData,
-  IdInput,
+  CreateUserInput,
+  DeleteUserInput,
+  RequestEmailVerificationInput,
   RequestPasswordResetMessage,
   ResetPasswordMessage,
-  TokenInput,
-  UpdatePasswordData,
-  UserInput,
-} from 'src/common/dto/app.inputs';
-import { UserService } from './user.service';
-import { CreateUserInput, DeleteUserInput } from './dto/user.inputs';
+  UpdateEmailInput,
+  UpdatePasswordInput,
+} from './user.inputs';
+import { IdInput, TokenInput } from 'src/common/dto/app.inputs';
+import { Status } from 'src/common/dto/app.response';
+import { UserDto, UserList } from './user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly service: UserService) {}
 
   @GrpcMethod('UserService')
-  health() {
+  health(): Status {
     return { success: true };
   }
 
   @GrpcMethod('UserService')
-  changePassword({ id, data }: UserInput<UpdatePasswordData>) {
+  changePassword({ id, data }: UpdatePasswordInput): Promise<Status> {
     return this.service.updatePassword(id, data);
   }
 
   @GrpcMethod('UserService')
-  changeEmail({ id, data }: UserInput<EmailData>) {
-    return this.service.updateEmail(id, data.email);
+  changeEmail({ id, email }: UpdateEmailInput): Promise<Status> {
+    return this.service.updateEmail(id, email);
   }
 
   @GrpcMethod('UserService')
-  requestPasswordResetToken({ id, email }: RequestPasswordResetMessage) {
+  requestPasswordResetToken({
+    id,
+    email,
+  }: RequestPasswordResetMessage): Promise<Status> {
     return this.service.requestPasswordResetToken(id, email);
   }
 
   @GrpcMethod('UserService')
-  resetPassword({ token, password }: ResetPasswordMessage) {
+  resetPassword({ token, password }: ResetPasswordMessage): Promise<Status> {
     return this.service.resetPassword(token, password);
   }
 
   @GrpcMethod('UserService')
-  requestEmailVerification({ email }: EmailData) {
+  requestEmailVerification({
+    email,
+  }: RequestEmailVerificationInput): Promise<Status> {
     return this.service.requestEmailVerification(email);
   }
 
   @GrpcMethod('UserService')
-  verifyEmail({ token }: TokenInput) {
+  verifyEmail({ token }: TokenInput): Promise<Status> {
     return this.service.verifyEmail(token);
   }
 
   @GrpcMethod('UserService')
-  list({ id }: IdInput) {
+  list({ id }: IdInput): Promise<UserList> {
     return this.service.listStoreUsers(id);
   }
 
   @GrpcMethod('UserService')
-  create({ id, data, roleId }: CreateUserInput) {
+  create({ id, data, roleId }: CreateUserInput): Promise<UserDto> {
     return this.service.create(id, data, roleId);
   }
 
   @GrpcMethod('UserService')
-  deactivate({ id, storeId }: DeleteUserInput) {
+  deactivate({ id, storeId }: DeleteUserInput): Promise<Status> {
     return this.service.deactivate(id, storeId);
   }
 }
