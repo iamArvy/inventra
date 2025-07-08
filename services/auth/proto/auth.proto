@@ -4,140 +4,15 @@ package auth;
 
 import "google/protobuf/empty.proto";
 
+import "proto/common.proto";
+
 service AuthService {
-  rpc Health(google.protobuf.Empty) returns (Status);
+  rpc Health(google.protobuf.Empty) returns (common.Status);
   rpc Register(RegisterRequest) returns (AuthResponse);
   rpc Login(LoginRequest) returns (AuthResponse);
   rpc RefreshToken(TokenRequest) returns (AuthToken);
   rpc GetClientToken(ClientTokenRequest) returns (ClientTokenResponse);
-  rpc Logout(TokenRequest) returns (Status);
-}
-
-service UserService {
-  rpc Health(google.protobuf.Empty) returns (Status);
-  rpc ChangePassword(ChangePasswordRequest) returns (Status);
-  rpc ChangeEmail(ChangeEmailRequest) returns (Status);
-  rpc requestPasswordResetToken(RequestPasswordResetMessage) returns (Status);
-  rpc resetPassword(ResetPasswordMessage) returns (Status);
-  rpc RequestEmailVerification(EmailData) returns (Status);
-  rpc VerifyEmail(TokenRequest) returns (Status);
-}
-
-service SessionService {
-  rpc Health(google.protobuf.Empty) returns (Status);
-  rpc GetAllUserSessions(IdInput) returns (SessionList);
-  rpc LogoutOtherUserSession(IdInput) returns (Status);
-}
-
-service RoleService {
-  rpc Health(google.protobuf.Empty) returns (Status);
-  rpc Create(CreateRoleInput) returns (RoleData);
-  rpc Update(UpdateRoleInput) returns (Status);
-  rpc Find(IdInput) returns (RoleData);
-  rpc List(IdInput) returns (RoleList);
-  rpc AttachPermissions(PermissionsOperations) returns (Status);
-  rpc DetachPermissions(PermissionsOperations) returns (Status);
-  rpc Delete(IdInput) returns (Status);
-}
-
-service PermissionService {
-  rpc Health(google.protobuf.Empty) returns (Status);
-  rpc Create(CreatePermissionInput) returns (PermissionData);
-  rpc Update(UpdatePermissionInput) returns (Status);
-  rpc Find(IdInput) returns (PermissionData);
-  rpc List(google.protobuf.Empty) returns (PermissionList);
-  rpc ListRolePermissions(IdInput) returns (PermissionList);
-  rpc Delete(IdInput) returns (Status);
-}
-
-service ClientService {
-  rpc Health(google.protobuf.Empty) returns (Status);
-  rpc Create(CreateClientInput) returns (ClientData);
-  rpc Update(UpdateClientInput) returns (Status);
-  rpc Get(IdInput) returns (ClientData);
-  rpc List(IdInput) returns (ClientList);
-  rpc Delete(IdInput) returns (Status);
-  rpc RefreshSecret(IdInput) returns (ClientData);
-  rpc AttachPermissions(PermissionsOperations) returns (Status);
-  rpc DetachPermissions(PermissionsOperations) returns (Status);
-}
-
-message ClientTokenRequest{
-  string id = 1;
-  string secret = 2;
-}
-
-message ClientTokenResponse {
-  string token = 1;
-}
-
-message ClientInput {
-  string name = 1;
-  string description = 2;
-}
-
-message CreateClientInput {
-  string storeId = 1;
-  ClientInput data = 2;
-}
-
-message UpdateClientData {
-  optional string name = 1;
-  optional string description = 2;
-}
-
-message UpdateClientInput {
-  string id = 1;
-  optional UpdateClientData data = 2;
-}
-
-message ClientData {
-  string id = 1;
-  string storeId = 2;
-  string name = 3;
-  string description = 4;
-  string createdAt = 5;
-  string updatedAt = 6;
-  repeated string permissions = 7;
-}
-
-message ClientList {
-  repeated ClientData clients = 1;
-}
-
-message CreatePermissionInput {
-  string name = 1;
-  string description = 2;
-}
-
-message UpdatePermissionData {
-  optional string name = 1;
-  optional string description = 2;
-}
-message UpdatePermissionInput {
-  string id = 1;
-  optional UpdatePermissionData name = 2;
-}
-message PermissionData {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-}
-message PermissionList {
-  repeated PermissionData permissions = 1;
-}
-message PermissionsOperations {
-  string id = 1;
-  repeated string permissionIds = 2;
-}
-
-
-message IdInput {
-  string id = 1;
-}
-
-message Status {
-  bool success = 1;
+  rpc Logout(TokenRequest) returns (common.Status);
 }
 
 message RegisterData {
@@ -163,35 +38,6 @@ message AuthToken {
   int32 expiresIn = 2;
 }
 
-message ChangePasswordData {
-  string oldPassword = 1;
-  string newPassword = 2;
-}
-
-message ChangePasswordRequest {
-  string id = 1;
-  ChangePasswordData data = 2;
-}
-
-message RequestPasswordResetMessage {
-  string id = 1;
-  string email = 2;
-}
-
-message ResetPasswordMessage {
-  string token = 1;
-  string password = 2;
-}
-
-message EmailData {
-  string email = 1;
-}
-
-message ChangeEmailRequest {
-  string id = 1;
-  EmailData data = 2;
-}
-
 message TokenRequest {
   string token = 1;
 }
@@ -211,35 +57,11 @@ message LoginRequest {
   string ipAddress = 3;
 }
 
-message SessionData {
+message ClientTokenRequest{
   string id = 1;
-  string userAgent = 2;
-  string ipAddress = 3;
-  string createdAt = 4;
+  string secret = 2;
 }
 
-message SessionList {
-  repeated SessionData sessions = 1;
-}
-
-message CreateRoleInput {
-  string name = 1;
-}
-
-message UpdateRoleData {
-  string name = 2;
-}
-
-message UpdateRoleInput {
-  string id = 1;
-  UpdateRoleData data = 2;
-}
-
-message RoleData {
-  string id = 1;
-  string name = 2;
-}
-
-message RoleList {
-  repeated RoleData roles = 1;
+message ClientTokenResponse {
+  string token = 1;
 }

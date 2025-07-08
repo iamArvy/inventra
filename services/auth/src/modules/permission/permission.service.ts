@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BaseService } from 'src/common/base/base.service';
 import { PermissionRepo } from 'src/db/repositories/permission.repo';
-import { CacheKeys } from 'src/common/cache/cache-keys';
+import { CacheKeys } from 'src/cache/cache-keys';
 import { Permission } from 'generated/prisma';
 
 @Injectable()

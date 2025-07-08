@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/empty.proto";
+
+import "proto/common.proto";
+
+service RoleService {
+  rpc Health(google.protobuf.Empty) returns (common.Status);
+  rpc Create(CreateRoleInput) returns (RoleData);
+  rpc Update(UpdateRoleInput) returns (common.Status);
+  rpc Find(common.Id) returns (RoleData);
+  rpc List(common.Id) returns (RoleList);
+  rpc AttachPermissions(common.PermissionsOperations) returns (common.Status);
+  rpc DetachPermissions(common.PermissionsOperations) returns (common.Status);
+  rpc Delete(common.Id) returns (common.Status);
+}
+
+message CreateRoleInput {
+  string name = 1;
+}
+
+message UpdateRoleData {
+  string name = 2;
+}
+
+message UpdateRoleInput {
+  string id = 1;
+  UpdateRoleData data = 2;
+}
+
+message RoleData {
+  string id = 1;
+  string name = 2;
+}
+
+message RoleList {
+  repeated RoleData roles = 1;
+}

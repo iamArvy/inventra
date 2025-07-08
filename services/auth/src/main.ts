@@ -7,7 +7,14 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'auth',
-      protoPath: 'proto/auth.proto',
+      protoPath: [
+        'proto/auth.proto',
+        'proto/client.proto',
+        'proto/permission.proto',
+        'proto/role.proto',
+        'proto/session.proto',
+        'proto/user.proto',
+      ],
       url: process.env.GRPC_URL,
       // loader: {
       //   arrays: true,

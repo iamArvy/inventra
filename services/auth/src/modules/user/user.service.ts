@@ -16,7 +16,7 @@ import { UserEvent } from 'src/messaging/event/user.event';
 import { randomBytes } from 'crypto';
 import { UserData } from './dto/user.inputs';
 import { UserDto } from './dto/user.dto';
-import { CacheKeys } from 'src/common/cache/cache-keys';
+import { CacheKeys } from 'src/cache/cache-keys';
 
 @Injectable()
 export class UserService extends BaseService {

@@ -7,7 +7,7 @@ import { RoleRepo } from 'src/db/repositories/role.repo';
 import { RoleData } from './dto/role.inputs';
 import { BaseService } from 'src/common/base/base.service';
 import { Role } from 'generated/prisma';
-import { CacheKeys } from 'src/common/cache/cache-keys';
+import { CacheKeys } from 'src/cache/cache-keys';
 @Injectable()
 export class RoleService extends BaseService {
   constructor(private repo: RoleRepo) {

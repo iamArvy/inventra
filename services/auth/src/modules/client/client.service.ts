@@ -5,7 +5,7 @@ import { ClientData } from './dto/client.inputs';
 import { randomBytes } from 'crypto';
 import { SecretService } from 'src/common/secret/secret.service';
 import { ClientDto } from './dto/client.dto';
-import { CacheKeys } from 'src/common/cache/cache-keys';
+import { CacheKeys } from 'src/cache/cache-keys';
 
 @Injectable()
 export class ClientService extends BaseService {

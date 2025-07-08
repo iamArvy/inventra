@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/empty.proto";
+
+import "proto/common.proto";
+
+service PermissionService {
+  rpc Health(google.protobuf.Empty) returns (common.Status);
+  rpc Create(CreatePermissionInput) returns (PermissionData);
+  rpc Update(UpdatePermissionInput) returns (common.Status);
+  rpc Find(common.Id) returns (PermissionData);
+  rpc List(google.protobuf.Empty) returns (PermissionList);
+  rpc ListRolePermissions(common.Id) returns (PermissionList);
+  rpc Delete(common.Id) returns (common.Status);
+}
+
+
+message CreatePermissionInput {
+  string name = 1;
+  string description = 2;
+}
+
+message UpdatePermissionData {
+  optional string name = 1;
+  optional string description = 2;
+}
+message UpdatePermissionInput {
+  string id = 1;
+  optional UpdatePermissionData name = 2;
+}
+
+message PermissionData {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+}
+message PermissionList {
+  repeated PermissionData permissions = 1;
+}

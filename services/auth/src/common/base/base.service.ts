@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 // import { firstValueFrom, Observable } from 'rxjs';
-import { CacheService } from 'src/common/cache/cache.service';
+import { CacheService } from 'src/cache/cache.service';
 
 export abstract class BaseService {
   protected readonly logger = new Logger(this.constructor.name);

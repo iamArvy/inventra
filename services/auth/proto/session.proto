@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/empty.proto";
+
+import "proto/common.proto";
+
+service SessionService {
+  rpc Health(google.protobuf.Empty) returns (common.Status);
+  rpc GetAllUserSessions(common.Id) returns (SessionList);
+  rpc LogoutOtherUserSession(common.Id) returns (common.Status);
+}
+
+message SessionData {
+  string id = 1;
+  string userAgent = 2;
+  string ipAddress = 3;
+  string createdAt = 4;
+}
+
+message SessionList {
+  repeated SessionData sessions = 1;
+}

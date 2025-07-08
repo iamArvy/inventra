@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/empty.proto";
+
+import "proto/common.proto";
+
+service UserService {
+  rpc Health(google.protobuf.Empty) returns (common.Status);
+  rpc ChangePassword(ChangePasswordRequest) returns (common.Status);
+  rpc ChangeEmail(ChangeEmailRequest) returns (common.Status);
+  rpc requestPasswordResetToken(RequestPasswordResetMessage) returns (common.Status);
+  rpc resetPassword(ResetPasswordMessage) returns (common.Status);
+  rpc RequestEmailVerification(EmailData) returns (common.Status);
+  rpc VerifyEmail(TokenRequest) returns (common.Status);
+}
+
+message ChangePasswordData {
+  string oldPassword = 1;
+  string newPassword = 2;
+}
+
+message ChangePasswordRequest {
+  string id = 1;
+  ChangePasswordData data = 2;
+}
+
+message RequestPasswordResetMessage {
+  string id = 1;
+  string email = 2;
+}
+
+message ResetPasswordMessage {
+  string token = 1;
+  string password = 2;
+}
+
+message EmailData {
+  string email = 1;
+}
+
+message ChangeEmailRequest {
+  string id = 1;
+  EmailData data = 2;
+}
+
+message TokenRequest {
+  string token = 1;
+}
