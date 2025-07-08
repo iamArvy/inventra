@@ -9,6 +9,8 @@ import { PassportModule } from '@nestjs/passport';
 import { MesssagingModule } from './messaging/messsaging.module';
 import { AppController } from './app.controller';
 import { PermissionModule } from './modules/permission/permission.module';
+import { CacheModule } from './cache/cache.module';
+import { DbModule } from 'src/db/db.module';
 
 @Module({
   imports: [
@@ -20,7 +22,9 @@ import { PermissionModule } from './modules/permission/permission.module';
     SessionModule,
     PassportModule,
     MesssagingModule,
+    CacheModule,
     PermissionModule,
+    DbModule,
   ],
   controllers: [AppController],
 })

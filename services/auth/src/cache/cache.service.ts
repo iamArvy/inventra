@@ -1,15 +1,11 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Cacheable } from 'cacheable';
 
 @Injectable()
-export class CacheService implements OnModuleInit {
+export class CacheService {
   static instance: CacheService;
 
   constructor(@Inject('CACHE_INSTANCE') private readonly cache: Cacheable) {}
-
-  onModuleInit() {
-    CacheService.instance = this;
-  }
 
   async get<T = any>(key: string): Promise<T | undefined> {
     return await this.cache.get<T>(key);

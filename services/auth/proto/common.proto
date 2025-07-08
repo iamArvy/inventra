@@ -19,3 +19,7 @@ message PermissionsOperations {
   string id = 1;
   repeated string permissionIds = 2;
 }
+
+message TokenRequest {
+  string token = 1;
+}

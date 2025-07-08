@@ -6,10 +6,10 @@ import {
 import { SessionRepo } from 'src/db/repositories/session.repo';
 import { UserRepo } from 'src/db/repositories/user.repo';
 import { AuthResponse, Status } from 'src/common/dto/app.response';
-import { TokenService } from 'src/common/token/token.service';
-import { SecretService } from 'src/common/secret/secret.service';
+import { TokenService } from 'src/common/services/token/token.service';
+import { SecretService } from 'src/common/services/secret/secret.service';
 import { LoginData, RegisterData } from 'src/common/dto/app.inputs';
-import { BaseService } from 'src/common/base/base.service';
+import { BaseService } from 'src/common/services/base/base.service';
 import { UserEvent } from 'src/messaging/event/user.event';
 import { RoleRepo } from 'src/db/repositories/role.repo';
 import { ClientRepo } from 'src/db/repositories/client.repo';

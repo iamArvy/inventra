@@ -1,11 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import {
-  CreateRoleInput,
-  PermissionsOperations,
-  UpdateRoleInput,
-} from './dto/role.inputs';
+import { CreateRoleInput, UpdateRoleInput } from './dto/role.inputs';
 import { RoleService } from './role.service';
+import { PermissionsOperations } from 'src/common/dto/app.inputs';
 
 @Controller('role')
 export class RoleController {

@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
         const secondary = createKeyv(redisUrl);
         return new Cacheable({ secondary, ttl: '4h' });
       },
+      inject: [ConfigService],
     },
     CacheService,
   ],

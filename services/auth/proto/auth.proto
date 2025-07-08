@@ -4,15 +4,15 @@ package auth;
 
 import "google/protobuf/empty.proto";
 
-import "proto/common.proto";
+import "common.proto";
 
 service AuthService {
   rpc Health(google.protobuf.Empty) returns (common.Status);
   rpc Register(RegisterRequest) returns (AuthResponse);
   rpc Login(LoginRequest) returns (AuthResponse);
-  rpc RefreshToken(TokenRequest) returns (AuthToken);
+  rpc RefreshToken(common.TokenRequest) returns (AuthToken);
   rpc GetClientToken(ClientTokenRequest) returns (ClientTokenResponse);
-  rpc Logout(TokenRequest) returns (common.Status);
+  rpc Logout(common.TokenRequest) returns (common.Status);
 }
 
 message RegisterData {
@@ -36,10 +36,6 @@ message AuthResponse {
 message AuthToken {
   string token = 1;
   int32 expiresIn = 2;
-}
-
-message TokenRequest {
-  string token = 1;
 }
 
 message IsEmailVerifiedResponse {

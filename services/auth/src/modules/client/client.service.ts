@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { BaseService } from 'src/common/base/base.service';
+import { BaseService } from 'src/common/services/base/base.service';
 import { ClientRepo } from 'src/db/repositories/client.repo';
 import { ClientData } from './dto/client.inputs';
 import { randomBytes } from 'crypto';
-import { SecretService } from 'src/common/secret/secret.service';
+import { SecretService } from 'src/common/services/secret/secret.service';
 import { ClientDto } from './dto/client.dto';
 import { CacheKeys } from 'src/cache/cache-keys';
+import { CacheService } from 'src/cache/cache.service';
 
 @Injectable()
 export class ClientService extends BaseService {
   constructor(
     private repo: ClientRepo,
     private secretService: SecretService,
+    private readonly cache: CacheService,
   ) {
     super();
   }

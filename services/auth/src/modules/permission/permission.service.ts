@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { BaseService } from 'src/common/base/base.service';
+import { BaseService } from 'src/common/services/base/base.service';
 import { PermissionRepo } from 'src/db/repositories/permission.repo';
 import { CacheKeys } from 'src/cache/cache-keys';
 import { Permission } from 'generated/prisma';
+import { CacheService } from 'src/cache/cache.service';
 
 @Injectable()
 export class PermissionService extends BaseService {
-  constructor(private readonly repo: PermissionRepo) {
+  constructor(
+    private readonly repo: PermissionRepo,
+    private readonly cache: CacheService,
+  ) {
     super();
   }
 

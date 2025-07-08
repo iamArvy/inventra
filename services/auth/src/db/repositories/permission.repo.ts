@@ -48,4 +48,8 @@ export class PermissionRepo {
       where: { id },
     });
   }
+
+  createMany(data: { name: string; description: string }[]) {
+    return this.prisma.permission.createMany({ data });
+  }
 }

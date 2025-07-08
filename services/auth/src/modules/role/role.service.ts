@@ -5,12 +5,16 @@ import {
 } from '@nestjs/common';
 import { RoleRepo } from 'src/db/repositories/role.repo';
 import { RoleData } from './dto/role.inputs';
-import { BaseService } from 'src/common/base/base.service';
+import { BaseService } from 'src/common/services/base/base.service';
 import { Role } from 'generated/prisma';
 import { CacheKeys } from 'src/cache/cache-keys';
+import { CacheService } from 'src/cache/cache.service';
 @Injectable()
 export class RoleService extends BaseService {
-  constructor(private repo: RoleRepo) {
+  constructor(
+    private repo: RoleRepo,
+    private cache: CacheService,
+  ) {
     super();
   }
 

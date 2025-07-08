@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { BaseService } from 'src/common/base/base.service';
+import { CacheService } from 'src/cache/cache.service';
+import { BaseService } from 'src/common/services/base/base.service';
 import { SessionRepo } from 'src/db/repositories/session.repo';
 
 @Injectable()
 export class SessionService extends BaseService {
-  constructor(private readonly repo: SessionRepo) {
+  constructor(
+    private readonly repo: SessionRepo,
+    private cache: CacheService,
+  ) {
     super();
   }
   async getUserActiveSessions(id: string) {

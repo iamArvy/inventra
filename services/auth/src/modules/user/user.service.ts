@@ -6,17 +6,18 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { TokenService } from 'src/common/token/token.service';
+import { TokenService } from 'src/common/services/token/token.service';
 import { UserRepo } from 'src/db/repositories/user.repo';
-import { SecretService } from 'src/common/secret/secret.service';
+import { SecretService } from 'src/common/services/secret/secret.service';
 import { UpdatePasswordData } from 'src/common/dto/app.inputs';
 import { Status } from 'src/common/dto/app.response';
-import { BaseService } from 'src/common/base/base.service';
+import { BaseService } from 'src/common/services/base/base.service';
 import { UserEvent } from 'src/messaging/event/user.event';
 import { randomBytes } from 'crypto';
 import { UserData } from './dto/user.inputs';
 import { UserDto } from './dto/user.dto';
 import { CacheKeys } from 'src/cache/cache-keys';
+import { CacheService } from 'src/cache/cache.service';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -26,6 +27,7 @@ export class UserService extends BaseService {
     private secret: SecretService,
     private event: UserEvent, // Assuming this is imported correctly
     private roleRepo: RoleRepo,
+    private cache: CacheService,
   ) {
     super();
   }

@@ -4,7 +4,7 @@ package auth;
 
 import "google/protobuf/empty.proto";
 
-import "proto/common.proto";
+import "common.proto";
 
 service UserService {
   rpc Health(google.protobuf.Empty) returns (common.Status);
@@ -13,7 +13,7 @@ service UserService {
   rpc requestPasswordResetToken(RequestPasswordResetMessage) returns (common.Status);
   rpc resetPassword(ResetPasswordMessage) returns (common.Status);
   rpc RequestEmailVerification(EmailData) returns (common.Status);
-  rpc VerifyEmail(TokenRequest) returns (common.Status);
+  rpc VerifyEmail(common.TokenRequest) returns (common.Status);
 }
 
 message ChangePasswordData {
@@ -43,8 +43,4 @@ message EmailData {
 message ChangeEmailRequest {
   string id = 1;
   EmailData data = 2;
-}
-
-message TokenRequest {
-  string token = 1;
 }
