@@ -10,6 +10,7 @@ import { CacheKeys } from 'src/cache/cache-keys';
 import { CacheService } from 'src/cache/cache.service';
 import { RoleDto, RoleList } from './role.dto';
 import { Status } from 'src/common/dto/app.response';
+import { Cached } from 'src/common/decorators/cache.decorator';
 @Injectable()
 export class RoleService extends BaseService {
   constructor(
@@ -48,31 +49,20 @@ export class RoleService extends BaseService {
     }
   }
 
+  @Cached<RoleList>('4h', (storeId: string) => CacheKeys.storeRoles(storeId))
   async listByStore(storeId: string): Promise<RoleList> {
     try {
-      const cachedRoles = await this.cache.get<RoleDto[]>(
-        CacheKeys.storeRoles(storeId),
-      );
-      if (cachedRoles) {
-        return { roles: cachedRoles };
-      }
-      const roles = await this.repo.listByStore(storeId);
-      await this.cache.set(CacheKeys.storeRoles(storeId), roles, '4h');
-      return { roles };
+      return { roles: await this.repo.listByStore(storeId) };
     } catch (error) {
       this.handleError(error, 'RoleService.findAllRoles');
     }
   }
 
+  @Cached<RoleDto>('4h', (id: string) => CacheKeys.role(id))
   async get(id: string): Promise<RoleDto> {
     try {
-      const cachedRole = await this.cache.get<RoleDto>(CacheKeys.role(id));
-      if (cachedRole) {
-        return cachedRole;
-      }
       const role = await this.repo.findById(id);
       if (!role) throw new NotFoundException('Role not found');
-      await this.cache.set(CacheKeys.role(id), role, '4h');
       return role;
     } catch (error) {
       this.handleError(error, 'RoleService.findRole');

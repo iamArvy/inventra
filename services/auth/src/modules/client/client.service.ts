@@ -9,6 +9,7 @@ import { CacheKeys } from 'src/cache/cache-keys';
 import { CacheService } from 'src/cache/cache.service';
 import { Status } from 'src/common/dto/app.response';
 import { Client } from 'generated/prisma';
+import { Cached } from 'src/common/decorators/cache.decorator';
 
 @Injectable()
 export class ClientService extends BaseService {
@@ -109,23 +110,11 @@ export class ClientService extends BaseService {
   }
 
   // list client
+  @Cached<ClientList>('1h', (storeId: string) =>
+    CacheKeys.storeClients(storeId),
+  )
   async list(storeId: string): Promise<ClientList> {
     try {
-      // Validate storeId
-      if (!storeId) {
-        throw new Error('Store ID is required');
-      }
-      const cachedClients = await this.cache.get<ClientDto[]>(
-        CacheKeys.storeClients(storeId),
-      );
-
-      if (cachedClients) {
-        this.logger.log(
-          `Clients retrieved from cache for store ID: ${storeId}`,
-          'ClientService.list',
-        );
-        return { clients: cachedClients };
-      }
       const clients = await this.repo.list(storeId);
       if (!clients || clients.length === 0) {
         throw new Error('No clients found for the specified store');
@@ -141,21 +130,12 @@ export class ClientService extends BaseService {
   }
 
   // get client
+  @Cached<ClientDto>('1h', (id: string) => CacheKeys.client(id))
   async get(id: string) {
     try {
       // Validate id
       if (!id) {
         throw new Error('Client ID is required');
-      }
-      const cachedClient = await this.cache.get<ClientDto>(
-        CacheKeys.client(id),
-      );
-      if (cachedClient) {
-        this.logger.log(
-          `Client retrieved from cache with ID: ${id}`,
-          'ClientService.get',
-        );
-        return cachedClient;
       }
       const client = await this.repo.findByIdOrThrow(id);
       if (!client) {
@@ -165,7 +145,6 @@ export class ClientService extends BaseService {
         `Client retrieved with ID: ${client.id}`,
         'ClientService.get',
       );
-      await this.cache.set(CacheKeys.client(id), new ClientDto(client), '1h');
       return new ClientDto(client);
     } catch (error) {
       this.handleError(error, 'ClientService.create');

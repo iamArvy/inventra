@@ -31,6 +31,14 @@ export class RoleRepo {
   }
 
   listByStore(storeId: string) {
+    // return [
+    //   {
+    //     name: 'string',
+    //     description: 'string',
+    //     storeId,
+    //     createdAt: new Date(),
+    //   },
+    // ];
     return this.prisma.role.findMany({
       where: { storeId },
     });

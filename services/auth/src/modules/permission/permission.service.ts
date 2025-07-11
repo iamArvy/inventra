@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { BaseService } from 'src/common/services/base/base.service';
 import { PermissionRepo } from 'src/db/repositories/permission.repo';
 import { CacheKeys } from 'src/cache/cache-keys';
-import { Permission } from 'generated/prisma';
 import { CacheService } from 'src/cache/cache.service';
 import { PermissionDto, PermissionList } from './permission.dto';
 import { PermissionInput } from './permission.inputs';
 import { Status } from 'src/common/dto/app.response';
+import { Cached } from 'src/common/decorators/cache.decorator';
 
 @Injectable()
 export class PermissionService extends BaseService {
@@ -38,14 +38,9 @@ export class PermissionService extends BaseService {
   }
 
   // findAll
+  @Cached<PermissionList>('4h', () => CacheKeys.permissions)
   async list(): Promise<PermissionList> {
     try {
-      const cachedPermissions = await this.cache.get<Permission[]>(
-        CacheKeys.permissions,
-      );
-      if (cachedPermissions) {
-        return { permissions: cachedPermissions };
-      }
       const permissions = await this.repo.list();
       await this.cache.set(CacheKeys.permissions, permissions, '4h');
       return { permissions };
@@ -55,42 +50,28 @@ export class PermissionService extends BaseService {
   }
 
   // findById
+  @Cached<PermissionDto>('4h', (id: string) => CacheKeys.permission(id))
   async findById(id: string): Promise<PermissionDto> {
     try {
-      const cachedPermission = await this.cache.get<Permission>(
-        CacheKeys.permission(id),
-      );
-      if (cachedPermission) {
-        return cachedPermission;
-      }
       const permission = await this.repo.findById(id);
       if (!permission) {
         throw new Error('Permission not found');
       }
-      await this.cache.set(CacheKeys.permission(id), permission, '4h');
       return permission;
     } catch (error) {
       this.handleError(error, 'PermissionService.findById');
     }
   }
   // listRolePermissions
+  @Cached<PermissionList>('4h', (roleId: string) =>
+    CacheKeys.rolePermissions(roleId),
+  )
   async listRolePermissions(roleId: string): Promise<PermissionList> {
     try {
-      const cachedPermissions = await this.cache.get<Permission[]>(
-        CacheKeys.rolePermissions(roleId),
-      );
-      if (cachedPermissions) {
-        return { permissions: cachedPermissions };
-      }
       const permissions = await this.repo.listByRole(roleId);
       if (!permissions || permissions.length === 0) {
         throw new Error('No permissions found for this role');
       }
-      await this.cache.set(
-        CacheKeys.rolePermissions(roleId),
-        permissions,
-        '4h',
-      );
       return { permissions };
     } catch (error) {
       this.handleError(error, 'PermissionService.listRolePermissions');

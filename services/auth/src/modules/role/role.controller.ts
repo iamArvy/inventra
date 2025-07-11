@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { CreateRoleInput, UpdateRoleInput } from './role.inputs';
 import { RoleService } from './role.service';
@@ -56,5 +56,15 @@ export class RoleController {
     permissions,
   }: PermissionsOperations): Promise<Status> {
     return this.service.detachPermissions(id, permissions, storeId);
+  }
+
+  @Get('')
+  tester() {
+    // this.event.emailVerificationRequested({
+    //   token: 'sssss',
+    //   email: 'fdfgdfg',
+    // });
+    return this.service.listByStore('sds');
+    // return 'User signed up';
   }
 }

@@ -5,10 +5,11 @@ import {
 } from '@nestjs/common';
 import { SessionRepo } from 'src/db/repositories/session.repo';
 import { UserRepo } from 'src/db/repositories/user.repo';
-import { AuthResponse, Status } from 'src/common/dto/app.response';
+import { Status } from 'src/common/dto/app.response';
 import { TokenService } from 'src/common/services/token/token.service';
 import { SecretService } from 'src/common/services/secret/secret.service';
-import { LoginData, RegisterData } from 'src/common/dto/app.inputs';
+import { LoginData, RegisterData } from './auth.inputs';
+import { AuthResponse } from './auth.response';
 import { BaseService } from 'src/common/services/base/base.service';
 import { UserEvent } from 'src/messaging/event/user.event';
 import { RoleRepo } from 'src/db/repositories/role.repo';
