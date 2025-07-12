@@ -80,6 +80,15 @@ describe('UserService', () => {
     roleRepo = module.get(RoleRepo);
   });
 
+  describe('update', () => {
+    it('should throw if user not found', async () => {
+      userRepo.findById.mockResolvedValue(null);
+      await expect(service.update('id', { name: 'new_name' })).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
   describe('updatePassword', () => {
     it('should throw if user not found', async () => {
       userRepo.findById.mockResolvedValue(null);

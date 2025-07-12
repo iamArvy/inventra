@@ -9,12 +9,12 @@ async function bootstrap() {
     options: {
       package: 'auth',
       protoPath: [
-        'proto/auth.proto',
-        'proto/client.proto',
-        'proto/permission.proto',
-        'proto/role.proto',
-        'proto/session.proto',
-        'proto/user.proto',
+        'auth.proto',
+        'client.proto',
+        'permission.proto',
+        'role.proto',
+        'session.proto',
+        'user.proto',
       ],
       url: process.env.GRPC_URL,
       loader: {

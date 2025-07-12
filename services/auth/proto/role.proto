@@ -19,7 +19,7 @@ service RoleService {
 
 message CreateRoleData {
   string name = 1;
-  optional description = 2;
+  optional string description = 2;
 }
 message CreateRoleInput {
   string id = 1;

@@ -18,7 +18,7 @@ service UserService {
   rpc resetPassword(ResetPasswordMessage) returns (common.Status);
   rpc RequestEmailVerification(common.Id) returns (common.Status);
   rpc VerifyEmail(common.TokenRequest) returns (common.Status);
-  rpc Deactivate(common.IdAndStoreInput) return (common.Status);
+  rpc Deactivate(common.IdAndStoreInput) returns (common.Status);
 }
 
 message User {
