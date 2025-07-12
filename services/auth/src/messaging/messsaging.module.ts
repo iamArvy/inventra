@@ -1,15 +1,13 @@
 import { Global, Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UserEvent } from './event/user.event';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-// import { BaseClientService } from './rmq/rmq.client';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     ClientsModule.registerAsync([
       {
         name: 'MESSAGE_SERVICE',
-        imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: (config: ConfigService) => ({
           transport: Transport.RMQ,

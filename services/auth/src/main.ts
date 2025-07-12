@@ -31,6 +31,6 @@ async function bootstrap() {
   });
   app.useGlobalFilters(new GrpcExceptionFilter());
   await app.startAllMicroservices();
-  await app.listen(3000);
+  // await app.listen(3000);
 }
 bootstrap();
