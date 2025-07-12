@@ -26,9 +26,9 @@ const mockUserRepo = () => ({
 });
 
 const mockTokenService = () => ({
-  generateEmailVerificationToken: jest.fn(),
-  verifyEmailToken: jest.fn(),
-  generatePasswordResetToken: jest.fn(),
+  emailVerification: jest.fn(),
+  verify: jest.fn(),
+  passwordReset: jest.fn(),
 });
 
 const mockSecretService = () => ({
@@ -58,7 +58,7 @@ const mockCacheService = () => ({
 describe('UserService', () => {
   let service: UserService;
   let userRepo: ReturnType<typeof mockUserRepo>;
-  let tokenService: ReturnType<typeof mockTokenService>;
+  let token: ReturnType<typeof mockTokenService>;
   let roleRepo: ReturnType<typeof mockRoleRepo>;
 
   beforeEach(async () => {
@@ -76,7 +76,7 @@ describe('UserService', () => {
 
     service = module.get<UserService>(UserService);
     userRepo = module.get(UserRepo);
-    tokenService = module.get(TokenService);
+    token = module.get(TokenService);
     roleRepo = module.get(RoleRepo);
   });
 
@@ -107,7 +107,7 @@ describe('UserService', () => {
     });
 
     it('should throw if email already verified', async () => {
-      userRepo.findByEmail.mockResolvedValue({ emailVerified: true });
+      userRepo.findById.mockResolvedValue({ emailVerified: true });
       await expect(
         service.requestEmailVerification('x@example.com'),
       ).rejects.toThrow(UnauthorizedException);
@@ -116,7 +116,7 @@ describe('UserService', () => {
 
   describe('verifyEmail', () => {
     it('should throw if user not found', async () => {
-      tokenService.verifyEmailToken.mockResolvedValue({
+      token.verify.mockResolvedValue({
         sub: 'id',
         email: 'x@example.com',
       });
@@ -129,16 +129,16 @@ describe('UserService', () => {
 
   describe('requestPasswordResetToken', () => {
     it('should throw if user not found', async () => {
-      userRepo.findById.mockResolvedValue(null);
+      userRepo.findByEmail.mockResolvedValue(null);
       await expect(
-        service.requestPasswordResetToken('uid', 'x@example.com'),
+        service.requestPasswordResetToken('x@example.com'),
       ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('resetPassword', () => {
     it('should throw if user not found', async () => {
-      tokenService.verifyEmailToken.mockResolvedValue({
+      token.verify.mockResolvedValue({
         sub: 'id',
         email: 'x@example.com',
       });

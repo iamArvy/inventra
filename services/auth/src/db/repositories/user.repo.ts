@@ -17,6 +17,12 @@ export class UserRepo {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
+  async update(id: string, data: Prisma.UserUpdateInput) {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
   async updateEmailVerified(id: string, status: boolean) {
     return this.prisma.user.update({
       where: { id },

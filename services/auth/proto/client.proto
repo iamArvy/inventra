@@ -13,7 +13,7 @@ service ClientService {
   rpc Get(common.Id) returns (ClientData);
   rpc List(common.Id) returns (ClientList);
   rpc Delete(common.Id) returns (common.Status);
-  rpc RefreshSecret(common.Id) returns (ClientData);
+  rpc RefreshSecret(common.Id) returns (ClientSecret);
   rpc AttachPermissions(common.PermissionsOperations) returns (common.Status);
   rpc DetachPermissions(common.PermissionsOperations) returns (common.Status);
 }
@@ -24,8 +24,9 @@ message ClientInput {
 }
 
 message CreateClientInput {
-  string storeId = 1;
+  string id = 1;
   ClientInput data = 2;
+  repeated string permissions = 3;
 }
 
 message UpdateClientData {
@@ -35,7 +36,8 @@ message UpdateClientData {
 
 message UpdateClientInput {
   string id = 1;
-  optional UpdateClientData data = 2;
+  string storeId = 2;
+  optional UpdateClientData data = 3;
 }
 
 message ClientData {
@@ -45,9 +47,12 @@ message ClientData {
   string description = 4;
   string createdAt = 5;
   string updatedAt = 6;
-  repeated string permissions = 7;
 }
 
 message ClientList {
   repeated ClientData clients = 1;
+}
+
+message ClientSecret {
+  string secret = 1;
 }

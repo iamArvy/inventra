@@ -17,6 +17,8 @@ const mockRoleRepo = () => ({
 });
 
 const mockCacheService = () => ({
+  get: jest.fn(),
+  set: jest.fn(),
   delete: jest.fn(),
 });
 

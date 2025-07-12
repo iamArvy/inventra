@@ -17,16 +17,16 @@ async function bootstrap() {
         'proto/user.proto',
       ],
       url: process.env.GRPC_URL,
-      // loader: {
-      //   arrays: true,
-      //   objects: true,
-      //   includeDirs: ['proto'],
-      //   keepCase: true,
-      //   longs: String,
-      //   defaults: true,
-      //   oneofs: true,
-      //   enums: String,
-      // },
+      loader: {
+        // arrays: true,
+        // objects: true,
+        includeDirs: ['proto'],
+        // keepCase: true,
+        // longs: String,
+        // defaults: true,
+        // oneofs: true,
+        // enums: String,
+      },
     },
   });
   app.useGlobalFilters(new GrpcExceptionFilter());

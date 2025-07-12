@@ -23,11 +23,11 @@ const mockSessionRepo = () => ({
   update: jest.fn(),
 });
 const mockTokenService = () => ({
-  generateRefreshToken: jest.fn(),
-  generateAccessToken: jest.fn(),
-  generateEmailVerificationToken: jest.fn(),
-  generateClientToken: jest.fn(),
-  verifyRefreshToken: jest.fn(),
+  refresh: jest.fn(),
+  access: jest.fn(),
+  emailVerification: jest.fn(),
+  client: jest.fn(),
+  verify: jest.fn(),
 });
 const mockSecretService = () => ({
   create: jest.fn(),
@@ -49,7 +49,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let userRepo: ReturnType<typeof mockUserRepo>;
   let sessionRepo: ReturnType<typeof mockSessionRepo>;
-  let tokenService: ReturnType<typeof mockTokenService>;
+  let token: ReturnType<typeof mockTokenService>;
   let secretService: ReturnType<typeof mockSecretService>;
   // let userEvent: ReturnType<typeof mockUserEvent>;
   let roleRepo: ReturnType<typeof mockRoleRepo>;
@@ -72,7 +72,7 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     userRepo = module.get(UserRepo);
     sessionRepo = module.get(SessionRepo);
-    tokenService = module.get(TokenService);
+    token = module.get(TokenService);
     secretService = module.get(SecretService);
     // userEvent = module.get(UserEvent);
     roleRepo = module.get(RoleRepo);
@@ -109,8 +109,11 @@ describe('AuthService', () => {
         roleId: 'role1',
       });
       sessionRepo.create.mockResolvedValue({ id: 'sess1' });
-      tokenService.generateAccessToken.mockResolvedValue('access');
-      tokenService.generateRefreshToken.mockResolvedValue('refresh');
+      token.access.mockResolvedValue({ token: 'access' });
+      token.refresh.mockResolvedValue({ token: 'refresh' });
+      token.emailVerification.mockResolvedValue({
+        token: 'email-verification-token',
+      });
 
       const result = await service.signup(
         'store1',
@@ -118,6 +121,7 @@ describe('AuthService', () => {
         'ua',
         'ip',
       );
+      expect(userRepo.findByEmail).toHaveBeenCalled();
       expect(result.access.token).toBe('access');
     });
   });
@@ -140,8 +144,8 @@ describe('AuthService', () => {
       secretService.compare.mockResolvedValue(true);
       sessionRepo.findByUserIdAndDevice.mockResolvedValue(null);
       sessionRepo.create.mockResolvedValue({ id: 'sess1' });
-      tokenService.generateAccessToken.mockResolvedValue('access');
-      tokenService.generateRefreshToken.mockResolvedValue('refresh');
+      token.access.mockResolvedValue({ token: 'access' });
+      token.refresh.mockResolvedValue({ token: 'refresh' });
 
       const res = await service.login(
         { email: 'x', password: 'y' },
@@ -154,7 +158,7 @@ describe('AuthService', () => {
 
   describe('refreshToken', () => {
     it('should throw if user not found', async () => {
-      tokenService.verifyRefreshToken.mockResolvedValue({ sub: 'sess1' });
+      token.verify.mockResolvedValue({ sub: 'sess1' });
       sessionRepo.findById.mockResolvedValue({
         id: 'sess1',
         revokedAt: null,
@@ -169,7 +173,7 @@ describe('AuthService', () => {
     });
 
     it('should return a new access token', async () => {
-      tokenService.verifyRefreshToken.mockResolvedValue({ sub: 'sess1' });
+      token.verify.mockResolvedValue({ sub: 'sess1' });
       sessionRepo.findById.mockResolvedValue({
         id: 'sess1',
         revokedAt: null,
@@ -183,7 +187,7 @@ describe('AuthService', () => {
         emailVerified: true,
         roleId: 'role1',
       });
-      tokenService.generateAccessToken.mockResolvedValue('newAccess');
+      token.access.mockResolvedValue({ token: 'newAccess' });
 
       const result = await service.refreshToken('token');
       expect(result.token).toBe('newAccess');
@@ -192,7 +196,7 @@ describe('AuthService', () => {
 
   describe('logout', () => {
     it('should revoke a session', async () => {
-      tokenService.verifyRefreshToken.mockResolvedValue({ sub: 'sess1' });
+      token.verify.mockResolvedValue({ sub: 'sess1' });
       sessionRepo.findById.mockResolvedValue({
         id: 'sess1',
         revokedAt: null,
@@ -221,7 +225,7 @@ describe('AuthService', () => {
         hashedSecret: 'hash',
       });
       secretService.compare.mockResolvedValue(true);
-      tokenService.generateClientToken.mockResolvedValue('client-token');
+      token.client.mockResolvedValue('client-token');
 
       const result = await service.getClientToken('id', 'secret');
       expect(result).toBe('client-token');

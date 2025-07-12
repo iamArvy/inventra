@@ -10,32 +10,33 @@ import { Status } from 'src/common/dto/app.response';
 export class PermissionController {
   constructor(private readonly service: PermissionService) {}
 
-  @GrpcMethod('PermissionService', 'Create')
+  @GrpcMethod('PermissionService')
+  @GrpcMethod('PermissionService')
   create(data: PermissionInput): Promise<PermissionDto> {
     return this.service.create(data);
   }
 
-  @GrpcMethod('PermissionService', 'FindAll')
+  @GrpcMethod('PermissionService')
   list(): Promise<PermissionList> {
     return this.service.list();
   }
 
-  @GrpcMethod('PermissionService', 'FindById')
-  findById({ id }: IdInput): Promise<PermissionDto> {
+  @GrpcMethod('PermissionService')
+  find({ id }: IdInput): Promise<PermissionDto> {
     return this.service.findById(id);
   }
 
-  @GrpcMethod('PermissionService', 'ListRolePermissions')
+  @GrpcMethod('PermissionService')
   listRolePermissions({ id }: IdInput): Promise<PermissionList> {
     return this.service.listRolePermissions(id);
   }
 
-  @GrpcMethod('PermissionService', 'Update')
+  @GrpcMethod('PermissionService')
   update({ id, data }: UpdatePermissionInput): Promise<Status> {
     return this.service.update(id, data);
   }
 
-  @GrpcMethod('PermissionService', 'Delete')
+  @GrpcMethod('PermissionService')
   delete({ id }: IdInput): Promise<Status> {
     return this.service.delete(id);
   }

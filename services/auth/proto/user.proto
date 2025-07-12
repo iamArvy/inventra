@@ -8,12 +8,49 @@ import "common.proto";
 
 service UserService {
   rpc Health(google.protobuf.Empty) returns (common.Status);
+  rpc Create(CreateUserInput) returns (User);
+  rpc List(common.Id) returns (UserList);
+  rpc Get(common.Id) returns (User);
+  rpc Update(UpdateUserInput) returns (common.Status);
   rpc ChangePassword(ChangePasswordRequest) returns (common.Status);
   rpc ChangeEmail(ChangeEmailRequest) returns (common.Status);
   rpc requestPasswordResetToken(RequestPasswordResetMessage) returns (common.Status);
   rpc resetPassword(ResetPasswordMessage) returns (common.Status);
-  rpc RequestEmailVerification(EmailData) returns (common.Status);
+  rpc RequestEmailVerification(common.Id) returns (common.Status);
   rpc VerifyEmail(common.TokenRequest) returns (common.Status);
+  rpc Deactivate(common.IdAndStoreInput) return (common.Status);
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string storeId = 4;
+  string roleId = 5;
+  string createdAt = 6;
+}
+
+message UserList {
+  repeated User users = 1;
+}
+message CreateUserData {
+  string name = 1;
+  string email = 2;
+}
+
+message CreateUserInput {
+  string id = 1;
+  CreateUserData data = 2;
+  string roleId = 3;
+}
+
+message UpdateUserData {
+  optional string name = 1;
+}
+
+message UpdateUserInput {
+  string id = 1;
+  UpdateUserData data = 2;
 }
 
 message ChangePasswordData {
@@ -26,9 +63,13 @@ message ChangePasswordRequest {
   ChangePasswordData data = 2;
 }
 
-message RequestPasswordResetMessage {
+message ChangeEmailRequest {
   string id = 1;
   string email = 2;
+}
+
+message RequestPasswordResetMessage {
+  string email = 1;
 }
 
 message ResetPasswordMessage {
@@ -36,11 +77,3 @@ message ResetPasswordMessage {
   string password = 2;
 }
 
-message EmailData {
-  string email = 1;
-}
-
-message ChangeEmailRequest {
-  string id = 1;
-  EmailData data = 2;
-}

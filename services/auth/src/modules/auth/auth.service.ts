@@ -15,13 +15,15 @@ import { UserEvent } from 'src/messaging/event/user.event';
 import { RoleRepo } from 'src/db/repositories/role.repo';
 import { ClientRepo } from 'src/db/repositories/client.repo';
 import { UserDto } from '../user/user.dto';
+import { TokenData } from './auth.dto';
+import { RefreshTokenPayload } from 'src/common/services/token/token.payload';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userRepo: UserRepo,
     private sessionRepo: SessionRepo,
-    private tokenService: TokenService,
+    private token: TokenService,
     private secret: SecretService,
     private userEvent: UserEvent,
     private roleRepo: RoleRepo,
@@ -36,25 +38,14 @@ export class AuthService {
     storeId: string,
     emailVerified: boolean = false,
   ): Promise<AuthResponse> {
-    const refreshToken =
-      await this.tokenService.generateRefreshToken(sessionId);
-    const accessToken = await this.tokenService.generateAccessToken(
-      userId,
-      storeId,
-      emailVerified,
-    );
-    const hashed = await this.secret.create(refreshToken);
+    const refresh = await this.token.refresh(sessionId);
+    const access = await this.token.access(userId, storeId, emailVerified);
+    const hashed = await this.secret.create(refresh.token);
     await this.sessionRepo.updateRefreshToken(sessionId, hashed);
 
     return {
-      access: {
-        token: accessToken,
-        expiresIn: 15 * 60 * 1000,
-      },
-      refresh: {
-        token: refreshToken,
-        expiresIn: 7 * 24 * 60 * 60 * 1000,
-      },
+      access,
+      refresh,
     };
   }
 
@@ -116,13 +107,10 @@ export class AuthService {
     const pUser = new UserDto(user);
     this.userEvent.created(pUser);
 
-    const token = await this.tokenService.generateEmailVerificationToken(
-      user.id,
-      user.email,
-    );
+    const token = await this.token.emailVerification(user.id, user.email);
 
     this.userEvent.emailVerificationRequested({
-      token,
+      token: token.token,
       email: user.email,
     });
 
@@ -156,7 +144,7 @@ export class AuthService {
 
   private async verifyRefreshToken(refresh_token: string): Promise<string> {
     const { sub: id } =
-      await this.tokenService.verifyRefreshToken(refresh_token);
+      await this.token.verify<RefreshTokenPayload>(refresh_token);
     const session = await this.sessionRepo.findById(id);
     if (!session || session.revokedAt) {
       throw new UnauthorizedException('Session not found or revoked');
@@ -164,8 +152,6 @@ export class AuthService {
     if (session.expiresAt < new Date()) {
       throw new UnauthorizedException('Session expired');
     }
-
-    // Check if the session's hashed refresh token matches the provided refresh token
     if (!session.hashedRefreshToken)
       throw new UnauthorizedException('Session has no refresh token');
 
@@ -173,20 +159,18 @@ export class AuthService {
     return session.id;
   }
 
-  async refreshToken(
-    refresh_token: string,
-  ): Promise<{ token: string; expiresIn: number }> {
+  async refreshToken(refresh_token: string): Promise<TokenData> {
     const sessionId = await this.verifyRefreshToken(refresh_token);
     const user = await this.userRepo.findById(sessionId);
     if (!user) throw new NotFoundException('User not found');
     // Generate new tokens
-    const accessToken = await this.tokenService.generateAccessToken(
+    const access = await this.token.access(
       user.id,
       user.storeId,
       user.emailVerified,
       user.roleId,
     );
-    return { token: accessToken, expiresIn: 60 * 15 * 1000 };
+    return access;
   }
 
   async logout(token: string): Promise<Status> {
@@ -199,11 +183,11 @@ export class AuthService {
     return { success: true };
   }
 
-  async getClientToken(id: string, secret: string): Promise<string> {
+  async getClientToken(id: string, secret: string): Promise<TokenData> {
     const client = await this.clientRepo.findById(id);
     if (!client) throw new NotFoundException('Client not found');
     await this.secret.compare(client.hashedSecret, secret);
-    const token = await this.tokenService.generateClientToken(client.id);
+    const token = await this.token.client(client.id);
     return token;
   }
 }

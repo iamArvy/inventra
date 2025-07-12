@@ -28,13 +28,14 @@ message UpdatePermissionData {
 }
 message UpdatePermissionInput {
   string id = 1;
-  optional UpdatePermissionData name = 2;
+  optional UpdatePermissionData data = 2;
 }
 
 message PermissionData {
   string id = 1;
   string name = 2;
   string description = 3;
+  string createdAt = 4;
 }
 message PermissionList {
   repeated PermissionData permissions = 1;

@@ -10,13 +10,13 @@ service AuthService {
   rpc Health(google.protobuf.Empty) returns (common.Status);
   rpc Register(RegisterRequest) returns (AuthResponse);
   rpc Login(LoginRequest) returns (AuthResponse);
-  rpc RefreshToken(common.TokenRequest) returns (AuthToken);
-  rpc GetClientToken(ClientTokenRequest) returns (ClientTokenResponse);
+  rpc RefreshToken(common.TokenRequest) returns (common.TokenData);
+  rpc GetClientToken(ClientTokenRequest) returns (common.TokenData);
   rpc Logout(common.TokenRequest) returns (common.Status);
 }
 
 message RegisterData {
-  string userId = 1;
+  string name = 1;
   string email = 2;
   string password = 3;
 }
@@ -28,14 +28,10 @@ message RegisterRequest {
   string ipAddress = 4;
 }
 
-message AuthResponse {
-  AuthToken access = 1;
-  AuthToken refresh = 2;
-}
 
-message AuthToken {
-  string token = 1;
-  int32 expiresIn = 2;
+message AuthResponse {
+  common.TokenData access = 1;
+  common.TokenData refresh = 2;
 }
 
 message IsEmailVerifiedResponse {
@@ -56,8 +52,4 @@ message LoginRequest {
 message ClientTokenRequest{
   string id = 1;
   string secret = 2;
-}
-
-message ClientTokenResponse {
-  string token = 1;
 }

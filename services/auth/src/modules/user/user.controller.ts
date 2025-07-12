@@ -4,11 +4,11 @@ import { UserService } from './user.service';
 import {
   CreateUserInput,
   DeleteUserInput,
-  RequestEmailVerificationInput,
   RequestPasswordResetMessage,
   ResetPasswordMessage,
   UpdateEmailInput,
   UpdatePasswordInput,
+  UpdateUserInput,
 } from './user.inputs';
 import { IdInput, TokenInput } from 'src/common/dto/app.inputs';
 import { Status } from 'src/common/dto/app.response';
@@ -24,6 +24,26 @@ export class UserController {
   }
 
   @GrpcMethod('UserService')
+  create({ id, data, roleId }: CreateUserInput): Promise<UserDto> {
+    return this.service.create(id, data, roleId);
+  }
+
+  @GrpcMethod('UserService')
+  list({ id }: IdInput): Promise<UserList> {
+    return this.service.listStoreUsers(id);
+  }
+
+  @GrpcMethod('UserService')
+  get({ id }: IdInput): Promise<UserDto> {
+    return this.service.get(id);
+  }
+
+  @GrpcMethod('UserService')
+  update({ id, data }: UpdateUserInput): Promise<Status> {
+    return this.service.update(id, data);
+  }
+
+  @GrpcMethod('UserService')
   changePassword({ id, data }: UpdatePasswordInput): Promise<Status> {
     return this.service.updatePassword(id, data);
   }
@@ -35,10 +55,9 @@ export class UserController {
 
   @GrpcMethod('UserService')
   requestPasswordResetToken({
-    id,
     email,
   }: RequestPasswordResetMessage): Promise<Status> {
-    return this.service.requestPasswordResetToken(id, email);
+    return this.service.requestPasswordResetToken(email);
   }
 
   @GrpcMethod('UserService')
@@ -47,25 +66,13 @@ export class UserController {
   }
 
   @GrpcMethod('UserService')
-  requestEmailVerification({
-    email,
-  }: RequestEmailVerificationInput): Promise<Status> {
-    return this.service.requestEmailVerification(email);
+  requestEmailVerification({ id }: IdInput): Promise<Status> {
+    return this.service.requestEmailVerification(id);
   }
 
   @GrpcMethod('UserService')
   verifyEmail({ token }: TokenInput): Promise<Status> {
     return this.service.verifyEmail(token);
-  }
-
-  @GrpcMethod('UserService')
-  list({ id }: IdInput): Promise<UserList> {
-    return this.service.listStoreUsers(id);
-  }
-
-  @GrpcMethod('UserService')
-  create({ id, data, roleId }: CreateUserInput): Promise<UserDto> {
-    return this.service.create(id, data, roleId);
   }
 
   @GrpcMethod('UserService')

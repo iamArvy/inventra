@@ -46,7 +46,7 @@ export class AuthController {
   }
 
   @GrpcMethod('AuthService')
-  getClientToken({ id, secret }: ClientTokenRequest) {
+  getClientToken({ id, secret }: ClientTokenRequest): Promise<TokenData> {
     return this.service.getClientToken(id, secret);
   }
 }

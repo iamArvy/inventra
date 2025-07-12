@@ -17,12 +17,19 @@ service RoleService {
   rpc Delete(common.Id) returns (common.Status);
 }
 
-message CreateRoleInput {
+message CreateRoleData {
   string name = 1;
+  optional description = 2;
+}
+message CreateRoleInput {
+  string id = 1;
+  CreateRoleData data = 2;
+  repeated string permissions = 3;
 }
 
 message UpdateRoleData {
-  string name = 2;
+  optional string name = 1;
+  optional string description = 2;
 }
 
 message UpdateRoleInput {
@@ -33,6 +40,9 @@ message UpdateRoleInput {
 message RoleData {
   string id = 1;
   string name = 2;
+  string description = 3;
+  string storeId = 4;
+  string createdAt = 5;
 }
 
 message RoleList {

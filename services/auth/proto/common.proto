@@ -23,3 +23,13 @@ message PermissionsOperations {
 message TokenRequest {
   string token = 1;
 }
+
+message TokenData {
+  string token = 1;
+  int32 expiresIn = 2;
+}
+
+message IdAndStoreInput {
+  string id = 1;
+  string storeId = 2;
+}

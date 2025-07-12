@@ -9,6 +9,15 @@ export class CreateUserInput {
   roleId: string;
 }
 
+export class UpdateUserInfo {
+  name?: string;
+}
+
+export class UpdateUserInput {
+  id: string;
+  data: UpdateUserInfo;
+}
+
 export class DeleteUserInput {
   id: string;
   storeId: string;

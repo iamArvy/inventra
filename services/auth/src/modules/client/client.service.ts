@@ -50,6 +50,7 @@ export class ClientService {
     if (permissions && permissions.length > 0) {
       await this.repo.attachPermissions(client.id, permissions);
     }
+    // Create event which will email the secret
     return client;
   }
 

@@ -8,10 +8,6 @@ export class LoginData {
   password: string;
 }
 
-export class SignupInput {
-  name: string;
-}
-
 export class RegisterData extends LoginData {
   name: string;
 }

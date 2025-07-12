@@ -10,6 +10,7 @@ service SessionService {
   rpc Health(google.protobuf.Empty) returns (common.Status);
   rpc GetAllUserSessions(common.Id) returns (SessionList);
   rpc LogoutOtherUserSession(common.Id) returns (common.Status);
+  rpc Get(common.Id) returns (SessionData);
 }
 
 message SessionData {
