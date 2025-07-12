@@ -57,12 +57,7 @@ export class TokenService {
     return await this.generateToken({ sub: clientId, type: 'client' }, '1h');
   }
   async verifyToken<T extends object>(token: string): Promise<T> {
-    try {
-      return this.jwtService.verifyAsync<T>(token);
-    } catch (error: any) {
-      this.logger.error(`Token verification failed: ${error as string}`);
-      return Promise.reject(new Error(`Token verification failed`));
-    }
+    return this.jwtService.verifyAsync<T>(token);
   }
 
   async verifyEmailToken(token: string) {

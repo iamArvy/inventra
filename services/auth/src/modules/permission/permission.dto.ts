@@ -1,6 +1,7 @@
 import { Permission } from 'generated/prisma';
 
 export class PermissionDto {
+  id: string;
   name: string;
   description: string | null;
   createdAt: Date;

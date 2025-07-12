@@ -9,13 +9,9 @@ export class SecretService extends BaseService {
   }
 
   async compare(hash: string, secret: string): Promise<boolean> {
-    try {
-      const valid = await argon.verify(hash, secret);
-      if (!valid) throw new UnauthorizedException('Invalid credentials');
-      return true;
-    } catch (error) {
-      this.handleError(error, 'SecretService.compare');
-    }
+    const valid = await argon.verify(hash, secret);
+    if (!valid) throw new UnauthorizedException('Invalid credentials');
+    return true;
   }
 
   create(input: string) {

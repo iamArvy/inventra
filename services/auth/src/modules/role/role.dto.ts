@@ -1,6 +1,7 @@
 import { Role } from 'generated/prisma';
 
 export class RoleDto {
+  id: string;
   name: string;
   description: string | null;
   storeId: string;

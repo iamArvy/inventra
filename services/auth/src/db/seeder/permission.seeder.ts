@@ -13,11 +13,7 @@ export class PermissionSeeder {
   ) {}
 
   async seedPermissions() {
-    try {
-      await this.permission.createMany(permissions);
-      return this.logger.log('Permissions created successfully');
-    } catch (error) {
-      this.logger.error(`Error seeding permissions`, error);
-    }
+    await this.permission.createMany(permissions);
+    return this.logger.log('Permissions created successfully');
   }
 }
