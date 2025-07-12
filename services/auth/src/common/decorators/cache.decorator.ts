@@ -30,7 +30,7 @@ export function Cached<T>(ttl: string, keyFn: CacheKeyFn): MethodDecorator {
 
       const result = (await originalMethod.apply(this, args)) as (
         ...args: any[]
-      ) => Promise<string>;
+      ) => Promise<T>;
       await this.cache.set(cacheKey, result, ttl);
       return result;
     };

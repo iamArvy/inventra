@@ -51,11 +51,7 @@ export class RoleService extends BaseService {
 
   @Cached<RoleList>('4h', (storeId: string) => CacheKeys.storeRoles(storeId))
   async listByStore(storeId: string): Promise<RoleList> {
-    try {
-      return { roles: await this.repo.listByStore(storeId) };
-    } catch (error) {
-      this.handleError(error, 'RoleService.findAllRoles');
-    }
+    return { roles: await this.repo.listByStore(storeId) };
   }
 
   @Cached<RoleDto>('4h', (id: string) => CacheKeys.role(id))
