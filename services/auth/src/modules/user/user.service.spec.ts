@@ -50,6 +50,8 @@ const mockRoleRepo = () => ({
 });
 
 const mockCacheService = () => ({
+  set: jest.fn(),
+  get: jest.fn(),
   delete: jest.fn(),
 });
 
@@ -57,10 +59,7 @@ describe('UserService', () => {
   let service: UserService;
   let userRepo: ReturnType<typeof mockUserRepo>;
   let tokenService: ReturnType<typeof mockTokenService>;
-  // let secret: ReturnType<typeof mockSecretService>;
-  // let event: ReturnType<typeof mockUserEvent>;
   let roleRepo: ReturnType<typeof mockRoleRepo>;
-  // let cache: ReturnType<typeof mockCacheService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -78,10 +77,7 @@ describe('UserService', () => {
     service = module.get<UserService>(UserService);
     userRepo = module.get(UserRepo);
     tokenService = module.get(TokenService);
-    // secret = module.get(SecretService);
-    // event = module.get(UserEvent);
     roleRepo = module.get(RoleRepo);
-    // cache = module.get(CacheService);
   });
 
   describe('updatePassword', () => {

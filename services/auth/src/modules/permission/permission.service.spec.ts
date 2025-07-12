@@ -15,6 +15,7 @@ const mockPermissionRepo = () => ({
 
 const mockCacheService = () => ({
   set: jest.fn(),
+  get: jest.fn(),
   delete: jest.fn(),
 });
 
