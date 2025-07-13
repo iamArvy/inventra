@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  LoginInput,
-  RegisterInput,
-} from 'src/module/auth/dto/auth/auth.inputs';
+import { LoginInput, RegisterInput } from 'src/module/auth/auth.inputs';
 import { ClientGrpc } from '@nestjs/microservices';
-import { AUTH_SERVICE_NAME, AuthServiceClient } from 'src/common/proto/auth';
+import {
+  AUTH_SERVICE_NAME,
+  AuthServiceClient,
+} from 'src/common/proto/auth/auth';
 import { AppService } from 'src/app.service';
 
 @Injectable()
@@ -24,7 +24,12 @@ export class AuthService extends AppService<AuthServiceClient> {
   async register(userAgent: string, ipAddress: string, data: RegisterInput) {
     try {
       const response = await this.call(
-        this.service.register({ userAgent, ipAddress, data }),
+        this.service.register({
+          userAgent,
+          ipAddress,
+          data,
+          storeId: 'store-id',
+        }),
       );
       if (response)
         this.logger.log(

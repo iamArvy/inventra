@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/empty.proto";
+
+import "common.proto";
+
+service AuthService {
+  rpc Health(google.protobuf.Empty) returns (common.Status);
+  rpc Register(RegisterRequest) returns (AuthResponse);
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc RefreshToken(common.TokenRequest) returns (common.TokenData);
+  rpc GetClientToken(ClientTokenRequest) returns (common.TokenData);
+  rpc Logout(common.TokenRequest) returns (common.Status);
+}
+
+message RegisterData {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message RegisterRequest {
+  string storeId = 1;
+  RegisterData data = 2;
+  string userAgent = 3;
+  string ipAddress = 4;
+}
+
+
+message AuthResponse {
+  common.TokenData access = 1;
+  common.TokenData refresh = 2;
+}
+
+message IsEmailVerifiedResponse {
+  bool verified = 1;
+}
+
+message LoginData {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginRequest {
+  LoginData data = 1;
+  string userAgent = 2;
+  string ipAddress = 3;
+}
+
+message ClientTokenRequest{
+  string id = 1;
+  string secret = 2;
+}

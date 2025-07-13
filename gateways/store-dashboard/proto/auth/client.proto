@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/empty.proto";
+
+import "auth/common.proto";
+
+service ClientService {
+  rpc Health(google.protobuf.Empty) returns (common.Status);
+  rpc Create(CreateClientInput) returns (ClientData);
+  rpc Update(UpdateClientInput) returns (common.Status);
+  rpc Get(common.Id) returns (ClientData);
+  rpc List(common.Id) returns (ClientList);
+  rpc Delete(common.Id) returns (common.Status);
+  rpc RefreshSecret(common.Id) returns (ClientSecret);
+  rpc AttachPermissions(common.PermissionsOperations) returns (common.Status);
+  rpc DetachPermissions(common.PermissionsOperations) returns (common.Status);
+}
+
+message ClientInput {
+  string name = 1;
+  string description = 2;
+}
+
+message CreateClientInput {
+  string id = 1;
+  ClientInput data = 2;
+  repeated string permissions = 3;
+}
+
+message UpdateClientData {
+  optional string name = 1;
+  optional string description = 2;
+}
+
+message UpdateClientInput {
+  string id = 1;
+  string storeId = 2;
+  optional UpdateClientData data = 3;
+}
+
+message ClientData {
+  string id = 1;
+  string storeId = 2;
+  string name = 3;
+  string description = 4;
+  string createdAt = 5;
+  string updatedAt = 6;
+}
+
+message ClientList {
+  repeated ClientData clients = 1;
+}
+
+message ClientSecret {
+  string secret = 1;
+}

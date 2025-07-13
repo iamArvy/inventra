@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { AuthService } from './auth.service';
           transport: Transport.GRPC,
           options: {
             package: 'auth',
-            protoPath: join(__dirname, '../../../proto/auth/auth.proto'),
+            protoPath: join(__dirname, '../../../proto/auth/user.proto'),
             url: configService.get<string>('AUTH_GRPC_URL'),
             // loader: {
             //   keepCase: true,
@@ -31,7 +31,7 @@ import { AuthService } from './auth.service';
       },
     ]),
   ],
-  controllers: [AuthController],
-  providers: [AuthService],
+  controllers: [UserController],
+  providers: [UserService],
 })
-export class AuthModule {}
+export class UserModule {}

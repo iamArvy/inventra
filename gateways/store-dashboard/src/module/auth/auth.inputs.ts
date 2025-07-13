@@ -7,6 +7,14 @@ import {
 } from 'class-validator';
 
 export class RegisterInput {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 'John Doe',
+    description: 'The name of the user',
+  })
+  name: string;
+
   @IsEmail()
   @IsNotEmpty()
   @ApiProperty({

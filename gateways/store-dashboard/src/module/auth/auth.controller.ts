@@ -1,24 +1,14 @@
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { HealthResponse } from 'src/common/dto/status.response';
-import { AuthService } from './services/auth/auth.service';
-import { UserService } from './services/user/user.service';
+import { AuthService } from './auth.service';
 import { Request } from 'express';
-import { ReqData } from 'src/common/types';
-import {
-  LoginInput,
-  RegisterInput,
-  UpdateEmailInput,
-  UpdatePasswordInput,
-  AuthResponse,
-} from './dto';
-
+// import { ReqData } from 'src/common/types';
+import { LoginInput, RegisterInput } from './auth.inputs';
+import { AuthResponse } from './auth.response';
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private auth: AuthService,
-    private user: UserService,
-  ) {}
+  constructor(private auth: AuthService) {}
 
   @ApiOkResponse({
     description: 'Health check for user service',
@@ -45,18 +35,5 @@ export class AuthController {
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const ipAddress = req.ip || 'Unknown';
     return this.auth.login(userAgent, ipAddress, data);
-  }
-
-  @Post('update-password')
-  updatePassword(
-    @Req() { user }: ReqData,
-    @Body('data') data: UpdatePasswordInput,
-  ) {
-    return this.user.updatePassword(user, data);
-  }
-
-  @Post(':id/update-email')
-  updateEmail(@Req() { user }: ReqData, @Body('data') data: UpdateEmailInput) {
-    return this.user.updateEmail(user, data);
   }
 }
