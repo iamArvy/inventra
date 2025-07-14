@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SessionService } from './session.service';
-import { SessionRepo } from 'src/db/repositories/session.repo';
-import { CacheService } from 'src/cache/cache.service';
+import { SessionRepo } from 'src/db/repository/repositories/session.repo';
 import { NotFoundException } from '@nestjs/common';
 
 const mockSessionRepo = () => ({
@@ -10,29 +9,20 @@ const mockSessionRepo = () => ({
   findById: jest.fn(),
 });
 
-const mockCacheService = () => ({
-  get: jest.fn(),
-  set: jest.fn(),
-  delete: jest.fn(),
-});
-
 describe('SessionService', () => {
   let service: SessionService;
   let repo: ReturnType<typeof mockSessionRepo>;
-  let cache: ReturnType<typeof mockCacheService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SessionService,
         { provide: SessionRepo, useFactory: mockSessionRepo },
-        { provide: CacheService, useFactory: mockCacheService },
       ],
     }).compile();
 
     service = module.get<SessionService>(SessionService);
     repo = module.get(SessionRepo);
-    cache = module.get(CacheService);
   });
 
   describe('getUserActiveSessions', () => {
@@ -54,11 +44,9 @@ describe('SessionService', () => {
   describe('logoutOtherUserSessions', () => {
     it('should logout all other user sessions and clear cache', async () => {
       repo.endAllUserSessions.mockResolvedValue(true);
-      cache.delete.mockResolvedValue(true);
 
       const result = await service.logoutOtherUserSessions('user1');
       expect(repo.endAllUserSessions).toHaveBeenCalledWith('user1');
-      expect(cache.delete).toHaveBeenCalledWith('user:user1:activeSessions');
       expect(result.success).toBe(true);
     });
   });

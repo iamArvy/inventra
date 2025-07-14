@@ -1,21 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ClientRepo } from 'src/db/repositories/client.repo';
+import { ClientRepo } from 'src/db/repository';
 import { ClientInput } from './client.inputs';
 import { randomBytes } from 'crypto';
 import { SecretService } from 'src/common/services/secret/secret.service';
 import { ClientDto, ClientList, Secret } from './client.dto';
-import { CacheKeys } from 'src/cache/cache-keys';
-import { CacheService } from 'src/cache/cache.service';
 import { Status } from 'src/common/dto/app.response';
 import { Client } from 'generated/prisma';
-import { Cached } from 'src/common/decorators/cache.decorator';
 
 @Injectable()
 export class ClientService {
   constructor(
     private repo: ClientRepo,
     private secretService: SecretService,
-    private readonly cache: CacheService,
   ) {}
 
   protected readonly logger = new Logger(this.constructor.name);
@@ -60,7 +56,6 @@ export class ClientService {
     storeId: string,
     data: Partial<ClientInput>,
   ): Promise<Status> {
-    // Validate id, storeId, and data
     if (!id || !storeId || !data) {
       throw new Error('ID, store ID, and client data are required');
     }
@@ -80,13 +75,10 @@ export class ClientService {
   // generate secret
   async refreshSecret(id: string): Promise<Secret> {
     // Validate id
-    if (!id) {
-      throw new Error('Client ID is required');
-    }
     const client = await this.repo.findByIdOrThrow(id);
     const secret = this.generateSecret();
     const hashedSecret = await this.secretService.create(secret);
-    const updatedClient = await this.repo.update(id, { hashedSecret });
+    const updatedClient = await this.repo.update(client.id, { hashedSecret });
     if (!updatedClient) {
       throw new Error('Failed to update client secret');
     }
@@ -97,10 +89,6 @@ export class ClientService {
     return { secret };
   }
 
-  // list client
-  @Cached<ClientList>('1h', (storeId: string) =>
-    CacheKeys.storeClients(storeId),
-  )
   async list(storeId: string): Promise<ClientList> {
     const clients = await this.repo.list(storeId);
     if (!clients || clients.length === 0) {
@@ -113,17 +101,11 @@ export class ClientService {
     return { clients };
   }
 
-  // get client
-  @Cached<ClientDto>('1h', (id: string) => CacheKeys.client(id))
   async get(id: string) {
-    // Validate id
     if (!id) {
-      throw new Error('Client ID is required');
-    }
-    const client = await this.repo.findByIdOrThrow(id);
-    if (!client) {
       throw new Error('Client not found');
     }
+    const client = await this.repo.findByIdOrThrow(id);
     this.logger.log(
       `Client retrieved with ID: ${client.id}`,
       'ClientService.get',
@@ -131,15 +113,11 @@ export class ClientService {
     return new ClientDto(client);
   }
 
-  // attach permissions
   async attachPermissions(id: string, permissions: string[]) {
-    // Validate id and permissions
-    if (!id || !permissions || permissions.length === 0) {
-      throw new Error('Client ID and permissions are required');
-    }
     const client = await this.repo.findByIdOrThrow(id);
-    if (!client) {
-      throw new Error('Client not found');
+
+    if (!id || !permissions || permissions.length === 0) {
+      throw new Error('Client and permissions are required');
     }
 
     const updatedClient = await this.repo.attachPermissions(id, permissions);
@@ -151,20 +129,14 @@ export class ClientService {
       'ClientService.attachPermissions',
     );
 
-    await this.cache.delete(CacheKeys.clientPermissions(id)); // Clear cache for this client
     return { success: true };
   }
 
-  // detach permissions
   async detachPermissions(id: string, permissions: string[]) {
-    // Validate id and permissions
     if (!id || !permissions || permissions.length === 0) {
       throw new Error('Client ID and permissions are required');
     }
     const client = await this.repo.findByIdOrThrow(id);
-    if (!client) {
-      throw new Error('Client not found');
-    }
 
     const updatedClient = await this.repo.detachPermissions(id, permissions);
     if (!updatedClient) {
@@ -175,20 +147,15 @@ export class ClientService {
       'ClientService.detachPermissions',
     );
 
-    await this.cache.delete(CacheKeys.clientPermissions(id)); // Clear cache for this client
     return { success: true };
   }
 
-  // delete client
   async delete(id: string) {
     // Validate id
     if (!id) {
       throw new Error('Client ID is required');
     }
     const client = await this.repo.findByIdOrThrow(id);
-    if (!client) {
-      throw new Error('Client not found');
-    }
 
     const deletedClient = await this.repo.delete(id);
     if (!deletedClient) {
@@ -198,9 +165,6 @@ export class ClientService {
       `Client deleted with ID: ${client.id}`,
       'ClientService.delete',
     );
-    await this.cache.delete(CacheKeys.client(id)); // Clear cache for this client
-    await this.cache.delete(CacheKeys.storeClients(client.storeId)); // Clear cache for store clients
-    await this.cache.delete(CacheKeys.clientPermissions(id)); // Clear cache for client permissions
     return { success: true };
   }
 }

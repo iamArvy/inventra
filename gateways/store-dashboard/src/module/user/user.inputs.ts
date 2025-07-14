@@ -6,6 +6,7 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 
+// @InputType()
 export class UpdateEmailInput {
   @IsEmail()
   @IsNotEmpty()

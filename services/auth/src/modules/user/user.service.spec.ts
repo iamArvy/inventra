@@ -1,11 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
-import { UserRepo } from 'src/db/repositories/user.repo';
 import { TokenService } from 'src/common/services/token/token.service';
 import { SecretService } from 'src/common/services/secret/secret.service';
 import { UserEvent } from 'src/messaging/event/user.event';
-import { RoleRepo } from 'src/db/repositories/role.repo';
-import { CacheService } from 'src/cache/cache.service';
+import { RoleRepo, UserRepo } from 'src/db/repository';
 import {
   NotFoundException,
   UnauthorizedException,
@@ -16,7 +14,9 @@ import { UserData } from './user.inputs';
 
 const mockUserRepo = () => ({
   findById: jest.fn(),
+  findByIdOrThrow: jest.fn(),
   updatePassword: jest.fn(),
+  update: jest.fn(),
   updateEmail: jest.fn(),
   updateEmailVerified: jest.fn(),
   findByEmail: jest.fn(),
@@ -49,12 +49,6 @@ const mockRoleRepo = () => ({
   findById: jest.fn(),
 });
 
-const mockCacheService = () => ({
-  set: jest.fn(),
-  get: jest.fn(),
-  delete: jest.fn(),
-});
-
 describe('UserService', () => {
   let service: UserService;
   let userRepo: ReturnType<typeof mockUserRepo>;
@@ -70,7 +64,6 @@ describe('UserService', () => {
         { provide: SecretService, useFactory: mockSecretService },
         { provide: UserEvent, useFactory: mockUserEvent },
         { provide: RoleRepo, useFactory: mockRoleRepo },
-        { provide: CacheService, useFactory: mockCacheService },
       ],
     }).compile();
 
@@ -82,7 +75,8 @@ describe('UserService', () => {
 
   describe('update', () => {
     it('should throw if user not found', async () => {
-      userRepo.findById.mockResolvedValue(null);
+      userRepo.findByIdOrThrow.mockRejectedValue(new NotFoundException());
+      // userRepo.update.mockResolvedValue({ name: 'name' });
       await expect(service.update('id', { name: 'new_name' })).rejects.toThrow(
         NotFoundException,
       );
@@ -91,7 +85,7 @@ describe('UserService', () => {
 
   describe('updatePassword', () => {
     it('should throw if user not found', async () => {
-      userRepo.findById.mockResolvedValue(null);
+      userRepo.findByIdOrThrow.mockRejectedValue(new NotFoundException());
       await expect(
         service.updatePassword('id', { oldPassword: 'x', newPassword: 'y' }),
       ).rejects.toThrow(NotFoundException);
@@ -100,23 +94,23 @@ describe('UserService', () => {
 
   describe('updateEmail', () => {
     it('should throw if user not found', async () => {
-      userRepo.findById.mockResolvedValue(null);
+      userRepo.findByIdOrThrow.mockRejectedValue(new NotFoundException());
       await expect(
         service.updateEmail('id', 'test@example.com'),
-      ).rejects.toThrow(UnauthorizedException);
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('requestEmailVerification', () => {
     it('should throw if user not found', async () => {
-      userRepo.findByEmail.mockResolvedValue(null);
+      userRepo.findByIdOrThrow.mockRejectedValue(new NotFoundException());
       await expect(
         service.requestEmailVerification('x@example.com'),
       ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw if email already verified', async () => {
-      userRepo.findById.mockResolvedValue({ emailVerified: true });
+      userRepo.findByIdOrThrow.mockResolvedValue({ emailVerified: true });
       await expect(
         service.requestEmailVerification('x@example.com'),
       ).rejects.toThrow(UnauthorizedException);
@@ -151,7 +145,7 @@ describe('UserService', () => {
         sub: 'id',
         email: 'x@example.com',
       });
-      userRepo.findById.mockResolvedValue(null);
+      userRepo.findByIdOrThrow.mockRejectedValue(new NotFoundException());
       await expect(service.resetPassword('token', 'pass')).rejects.toThrow(
         NotFoundException,
       );
@@ -190,14 +184,14 @@ describe('UserService', () => {
 
   describe('get', () => {
     it('should throw if user not found', async () => {
-      userRepo.findById.mockResolvedValue(null);
+      userRepo.findByIdOrThrow.mockRejectedValue(new NotFoundException());
       await expect(service.get('uid')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('deactivate', () => {
     it('should throw if user not found or mismatched store', async () => {
-      userRepo.findById.mockResolvedValue(null);
+      userRepo.findByIdOrThrow.mockRejectedValue(new NotFoundException());
       await expect(service.deactivate('uid', 'store')).rejects.toThrow(
         NotFoundException,
       );

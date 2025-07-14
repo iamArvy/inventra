@@ -3,7 +3,7 @@ import { status } from '@grpc/grpc-js';
 import { PipeTransform, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { User } from 'generated/prisma';
-import { UserRepo } from 'src/db/repositories/user.repo';
+import { UserRepo } from 'src/db/repository/repositories/user.repo';
 
 @Injectable()
 export class UserPipe implements PipeTransform<string, Promise<User>> {

@@ -35,10 +35,8 @@ export class UserService extends AppService<UserServiceClient> {
     return response;
   }
 
-  async updateEmail({ id }: User, data: UpdateEmailInput) {
-    const response = await this.call(
-      this.service.changeEmail({ id, email: data.email }),
-    );
+  async updateEmail({ id }: User, { email }: UpdateEmailInput) {
+    const response = await this.call(this.service.changeEmail({ id, email }));
     if (response.success) this.logger.log(`Email changed for user: ${id}`);
     return response;
   }

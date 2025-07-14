@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/db/prisma.service';
 import { Prisma, User } from 'generated/prisma';
 
 @Injectable()
@@ -9,35 +9,46 @@ export class UserRepo {
     return this.prisma.user.create({ data });
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  createMany(data: Prisma.UserCreateManyInput[]) {
+    return this.prisma.user.createMany({ data });
+  }
+
+  findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
-  async findById(id: string): Promise<User | null> {
+  findById(id: string): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
-  async update(id: string, data: Prisma.UserUpdateInput) {
+  async findByIdOrThrow(id: string): Promise<User> {
+    const user = await this.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  update(id: string, data: Prisma.UserUpdateInput) {
     return this.prisma.user.update({
       where: { id },
       data,
     });
   }
-  async updateEmailVerified(id: string, status: boolean) {
+
+  updateEmailVerified(id: string, status: boolean) {
     return this.prisma.user.update({
       where: { id },
       data: { emailVerified: status },
     });
   }
 
-  async updatePassword(id: string, passwordHash: string) {
+  updatePassword(id: string, passwordHash: string) {
     return this.prisma.user.update({
       where: { id },
       data: { passwordHash },
     });
   }
 
-  async updateEmail(id: string, email: string) {
+  updateEmail(id: string, email: string) {
     return this.prisma.user.update({
       where: { id },
       data: { email },

@@ -4,6 +4,7 @@ import { Cacheable } from 'cacheable';
 import { createKeyv } from '@keyv/redis';
 import { ConfigService } from '@nestjs/config';
 
+@Global()
 @Module({
   providers: [
     {
@@ -20,5 +21,4 @@ import { ConfigService } from '@nestjs/config';
   ],
   exports: [CacheService],
 })
-@Global()
 export class CacheModule {}

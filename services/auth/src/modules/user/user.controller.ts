@@ -13,9 +13,6 @@ import {
 import { IdInput, TokenInput } from 'src/common/dto/app.inputs';
 import { Status } from 'src/common/dto/app.response';
 import { UserDto, UserList } from './user.dto';
-import { GetById } from 'src/common/decorators/get-by-id.decorator';
-import { UserPipe } from 'src/common/pipes/user.pipe';
-import { User } from 'generated/prisma';
 
 @Controller('user')
 export class UserController {
@@ -37,9 +34,8 @@ export class UserController {
   }
 
   @GrpcMethod('UserService')
-  get(@GetById('id', UserPipe) user: User): Promise<UserDto> {
-    console.log(user);
-    return this.service.get(user.id);
+  get({ id }: IdInput): Promise<UserDto> {
+    return this.service.get(id);
   }
 
   @GrpcMethod('UserService')

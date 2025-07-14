@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClientService } from './client.service';
-import { ClientRepo } from 'src/db/repositories/client.repo';
+import { ClientRepo } from 'src/db/repository/repositories/client.repo';
 import { SecretService } from 'src/common/services/secret/secret.service';
-import { CacheService } from 'src/cache/cache.service';
 
 const mockClientRepo = () => ({
   create: jest.fn(),
@@ -18,17 +17,10 @@ const mockSecretService = () => ({
   create: jest.fn(),
 });
 
-const mockCacheService = () => ({
-  set: jest.fn(),
-  get: jest.fn(),
-  delete: jest.fn(),
-});
-
 describe('ClientService', () => {
   let service: ClientService;
   let repo: ReturnType<typeof mockClientRepo>;
   let secret: ReturnType<typeof mockSecretService>;
-  let cache: ReturnType<typeof mockCacheService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,14 +28,12 @@ describe('ClientService', () => {
         ClientService,
         { provide: ClientRepo, useFactory: mockClientRepo },
         { provide: SecretService, useFactory: mockSecretService },
-        { provide: CacheService, useFactory: mockCacheService },
       ],
     }).compile();
 
     service = module.get<ClientService>(ClientService);
     repo = module.get(ClientRepo);
     secret = module.get(SecretService);
-    cache = module.get(CacheService);
   });
 
   describe('create', () => {
@@ -103,7 +93,6 @@ describe('ClientService', () => {
       repo.attachPermissions.mockResolvedValue(true);
       const result = await service.attachPermissions('client1', ['read']);
       expect(result.success).toBe(true);
-      expect(cache.delete).toHaveBeenCalled();
     });
   });
 
@@ -113,7 +102,6 @@ describe('ClientService', () => {
       repo.detachPermissions.mockResolvedValue(true);
       const result = await service.detachPermissions('client1', ['read']);
       expect(result.success).toBe(true);
-      expect(cache.delete).toHaveBeenCalled();
     });
   });
 
@@ -126,7 +114,6 @@ describe('ClientService', () => {
       repo.delete.mockResolvedValue(true);
       const result = await service.delete('client1');
       expect(result.success).toBe(true);
-      expect(cache.delete).toHaveBeenCalledTimes(3);
     });
   });
 });

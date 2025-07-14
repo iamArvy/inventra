@@ -30,4 +30,4 @@ import { ConfigService } from '@nestjs/config';
   exports: [UserEvent],
 })
 @Global()
-export class MesssagingModule {}
+export class MessagingModule {}

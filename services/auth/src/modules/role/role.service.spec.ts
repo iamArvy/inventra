@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoleService } from './role.service';
-import { RoleRepo } from 'src/db/repositories/role.repo';
-import { CacheService } from 'src/cache/cache.service';
+import { RoleRepo } from 'src/db/repository';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 const mockRoleRepo = () => ({
@@ -16,29 +15,17 @@ const mockRoleRepo = () => ({
   removePermissionsFromRole: jest.fn(),
 });
 
-const mockCacheService = () => ({
-  get: jest.fn(),
-  set: jest.fn(),
-  delete: jest.fn(),
-});
-
 describe('RoleService', () => {
   let service: RoleService;
   let repo: ReturnType<typeof mockRoleRepo>;
-  let cache: ReturnType<typeof mockCacheService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        RoleService,
-        { provide: RoleRepo, useFactory: mockRoleRepo },
-        { provide: CacheService, useFactory: mockCacheService },
-      ],
+      providers: [RoleService, { provide: RoleRepo, useFactory: mockRoleRepo }],
     }).compile();
 
     service = module.get<RoleService>(RoleService);
     repo = module.get(RoleRepo);
-    cache = module.get(CacheService);
   });
 
   describe('create', () => {
@@ -58,7 +45,6 @@ describe('RoleService', () => {
         'perm',
       ]);
       expect(result.id).toBe('role1');
-      expect(cache.delete).toHaveBeenCalled();
     });
   });
 
@@ -111,7 +97,6 @@ describe('RoleService', () => {
       repo.update.mockResolvedValue({});
       const result = await service.update('role1', 'store1', { name: 'new' });
       expect(result.success).toBe(true);
-      expect(cache.delete).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -124,7 +109,6 @@ describe('RoleService', () => {
       repo.delete.mockResolvedValue(true);
       const result = await service.delete('role1');
       expect(result.success).toBe(true);
-      expect(cache.delete).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -148,7 +132,6 @@ describe('RoleService', () => {
         'store1',
       );
       expect(result.success).toBe(true);
-      expect(cache.delete).toHaveBeenCalled();
     });
   });
 
@@ -172,7 +155,6 @@ describe('RoleService', () => {
         'store1',
       );
       expect(result.success).toBe(true);
-      expect(cache.delete).toHaveBeenCalled();
     });
   });
 });

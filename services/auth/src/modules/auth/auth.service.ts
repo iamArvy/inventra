@@ -4,16 +4,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SessionRepo } from 'src/db/repositories/session.repo';
-import { UserRepo } from 'src/db/repositories/user.repo';
 import { Status } from 'src/common/dto/app.response';
 import { TokenService } from 'src/common/services/token/token.service';
 import { SecretService } from 'src/common/services/secret/secret.service';
 import { LoginData, RegisterData } from './auth.inputs';
 import { AuthResponse } from './auth.response';
 import { UserEvent } from 'src/messaging/event/user.event';
-import { RoleRepo } from 'src/db/repositories/role.repo';
-import { ClientRepo } from 'src/db/repositories/client.repo';
+import { RoleRepo, ClientRepo, UserRepo, SessionRepo } from 'src/db/repository';
 import { UserDto } from '../user/user.dto';
 import { TokenData } from './auth.dto';
 import { RefreshTokenPayload } from 'src/common/services/token/token.payload';

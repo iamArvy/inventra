@@ -6,11 +6,10 @@ import { ClientModule } from './modules/client/client.module';
 import { RoleModule } from './modules/role/role.module';
 import { SessionModule } from './modules/session/session.module';
 import { PassportModule } from '@nestjs/passport';
-import { MesssagingModule } from './messaging/messsaging.module';
+import { MessagingModule } from './messaging/messaging.module';
 import { AppController } from './app.controller';
 import { PermissionModule } from './modules/permission/permission.module';
-import { CacheModule } from './cache/cache.module';
-import { DbModule } from 'src/db/db.module';
+import { RepositoryModule } from './db/repository/repository.module';
 
 @Module({
   imports: [
@@ -21,10 +20,9 @@ import { DbModule } from 'src/db/db.module';
     RoleModule,
     SessionModule,
     PassportModule,
-    MesssagingModule,
-    CacheModule,
+    MessagingModule,
     PermissionModule,
-    DbModule,
+    RepositoryModule,
   ],
   controllers: [AppController],
 })

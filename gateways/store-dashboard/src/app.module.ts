@@ -8,6 +8,7 @@ import { JwtStrategy } from './common/strategies';
 // import { GraphQLModule } from '@nestjs/graphql';
 // import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo
 import { UserModule } from './module/user/user.module';
+import { CacheModule } from './cache/cache.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,6 +19,7 @@ import { UserModule } from './module/user/user.module';
     // StoreModule,
     // CategoryModule,
     UserModule,
+    CacheModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     //   driver: ApolloDriver,
     //   autoSchemaFile: true,

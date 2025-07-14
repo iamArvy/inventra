@@ -1,4 +1,3 @@
-import { RoleRepo } from 'src/db/repositories/role.repo';
 import {
   BadRequestException,
   Injectable,
@@ -8,16 +7,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { TokenService } from 'src/common/services/token/token.service';
-import { UserRepo } from 'src/db/repositories/user.repo';
+import { UserRepo, RoleRepo } from 'src/db/repository';
 import { SecretService } from 'src/common/services/secret/secret.service';
 import { Status } from 'src/common/dto/app.response';
 import { UserEvent } from 'src/messaging/event/user.event';
 import { randomBytes } from 'crypto';
 import { UpdatePasswordData, UpdateUserInfo, UserData } from './user.inputs';
 import { UserDto, UserList } from './user.dto';
-import { CacheKeys } from 'src/cache/cache-keys';
-import { CacheService } from 'src/cache/cache.service';
-import { Cached } from 'src/common/decorators/cache.decorator';
 import {
   EmailVerificationPayload,
   ResetPasswordPayload,
@@ -31,7 +27,6 @@ export class UserService {
     private secret: SecretService,
     private event: UserEvent, // Assuming this is imported correctly
     private roleRepo: RoleRepo,
-    private cache: CacheService,
   ) {}
 
   protected readonly logger = new Logger(this.constructor.name);
@@ -64,22 +59,18 @@ export class UserService {
     return pUser;
   }
 
-  @Cached<UserList>('1h', (id: string) => CacheKeys.storeUsers(id))
   async listStoreUsers(id: string): Promise<UserList> {
     const users = await this.repo.listByStore(id);
     return { users };
   }
 
-  @Cached<UserDto>('1h', (id: string) => CacheKeys.user(id))
   async get(id: string): Promise<UserDto> {
-    const user = await this.repo.findById(id);
-    if (!user) throw new NotFoundException();
+    const user = await this.repo.findByIdOrThrow(id);
     return new UserDto(user);
   }
 
   async update(id: string, data: UpdateUserInfo): Promise<Status> {
-    const user = await this.repo.findById(id);
-    if (!user) throw new NotFoundException();
+    await this.repo.findByIdOrThrow(id);
     const update = await this.repo.update(id, data);
     if (!update) throw new InternalServerErrorException('Update Failed');
     this.logger.log(`User: ${id} updated`);
@@ -88,40 +79,38 @@ export class UserService {
   }
 
   async updatePassword(id: string, data: UpdatePasswordData): Promise<Status> {
-    const user = await this.repo.findById(id);
-    if (!user) throw new NotFoundException('User not found');
+    const user = await this.repo.findByIdOrThrow(id);
     await this.secret.compare(user.passwordHash, data.oldPassword);
     const hash = await this.secret.create(data.newPassword);
-    await this.repo.updatePassword(id, hash);
-    this.logger.log(`Password updated for user ${id}`);
+    await this.repo.updatePassword(user.id, hash);
+    this.logger.log(`Password updated for user ${user.id}`);
     return { success: true };
   }
 
   async updateEmail(id: string, email: string): Promise<Status> {
-    const user = await this.repo.findById(id);
-    if (!user) throw new UnauthorizedException('User not Found');
-    await this.repo.updateEmail(id, email);
-    await this.repo.updateEmailVerified(id, false);
+    const user = await this.repo.findByIdOrThrow(id);
+    await this.repo.updateEmail(user.id, email);
+    await this.repo.updateEmailVerified(user.id, false);
     this.event.updated({
-      userId: id,
+      userId: user.id,
       email,
     });
-    this.logger.log(`Email updated for user ${id}`);
+    this.logger.log(`Email updated for user ${user.id}`);
     return { success: true };
   }
 
   async requestEmailVerification(id: string): Promise<Status> {
-    const user = await this.repo.findById(id);
-    if (!user) throw new NotFoundException('User not found');
-    if (user.emailVerified)
+    const user = await this.repo.findByIdOrThrow(id);
+    const { email, emailVerified } = user;
+    if (emailVerified)
       throw new UnauthorizedException('Email already verified');
-    const token = await this.token.emailVerification(user.id, user.email);
+    const { token } = await this.token.emailVerification(id, email);
 
     this.event.emailVerificationRequested({
-      token: token.token,
-      email: user.email,
+      token,
+      email,
     });
-    this.logger.log(`Email verification requested for user ${user.id}`);
+    this.logger.log(`Email verification requested for user ${id}`);
     return { success: true };
   }
 
@@ -157,8 +146,7 @@ export class UserService {
 
   async resetPassword(token: string, password: string): Promise<Status> {
     const { sub, email } = await this.token.verify<ResetPasswordPayload>(token);
-    const user = await this.repo.findById(sub);
-    if (!user) throw new NotFoundException('User not found');
+    const user = await this.repo.findByIdOrThrow(sub);
     if (user.email !== email)
       throw new UnauthorizedException('User Email mismatched');
     const hash = await this.secret.create(password);
@@ -168,13 +156,10 @@ export class UserService {
   }
 
   async deactivate(id: string, storeId: string) {
-    const user = await this.repo.findById(id);
-    if (!user || user.storeId !== storeId)
-      throw new NotFoundException('User not found');
+    const user = await this.repo.findByIdOrThrow(id);
+    if (user.storeId !== storeId) throw new NotFoundException('User not found');
     await this.repo.deactivate(id);
     this.logger.log(`User: ${id} deactivated successfully.`);
-    await this.cache.delete(CacheKeys.user(id));
-    await this.cache.delete(CacheKeys.storeUsers(user.storeId));
     this.event.deactivated(id);
     return { success: true };
   }

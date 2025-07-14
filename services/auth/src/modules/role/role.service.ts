@@ -4,19 +4,13 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { RoleRepo } from 'src/db/repositories/role.repo';
+import { RoleRepo } from 'src/db/repository';
 import { RoleInput } from './role.inputs';
-import { CacheKeys } from 'src/cache/cache-keys';
-import { CacheService } from 'src/cache/cache.service';
 import { RoleDto, RoleList } from './role.dto';
 import { Status } from 'src/common/dto/app.response';
-import { Cached } from 'src/common/decorators/cache.decorator';
 @Injectable()
 export class RoleService {
-  constructor(
-    private repo: RoleRepo,
-    private cache: CacheService,
-  ) {}
+  constructor(private repo: RoleRepo) {}
 
   protected readonly logger = new Logger(this.constructor.name);
 
@@ -40,17 +34,14 @@ export class RoleService {
         throw new BadRequestException('Failed to add permissions to role');
       }
     }
-    await this.cache.delete(CacheKeys.storeRoles(storeId));
     this.logger.log(`Role created: ${role.id} in store: ${storeId}`);
     return role;
   }
 
-  @Cached<RoleList>('4h', (storeId: string) => CacheKeys.storeRoles(storeId))
   async listByStore(storeId: string): Promise<RoleList> {
     return { roles: await this.repo.listByStore(storeId) };
   }
 
-  @Cached<RoleDto>('4h', (id: string) => CacheKeys.role(id))
   async get(id: string): Promise<RoleDto> {
     const role = await this.repo.findById(id);
     if (!role) throw new NotFoundException('Role not found');
@@ -73,8 +64,6 @@ export class RoleService {
     }
 
     await this.repo.update(id, { name: data.name });
-    await this.cache.delete(CacheKeys.storeRoles(storeId));
-    await this.cache.delete(CacheKeys.role(id));
     this.logger.log(`Role updated: ${id} in store: ${storeId}`);
     return { success: true };
   }
@@ -82,8 +71,6 @@ export class RoleService {
   async delete(id: string): Promise<Status> {
     const role = await this.repo.findByIdOrThrow(id);
     await this.repo.delete(id);
-    await this.cache.delete(CacheKeys.storeRoles(role.storeId));
-    await this.cache.delete(CacheKeys.role(id));
     this.logger.log(`Role deleted: ${id} in store: ${role.storeId}`);
     return { success: true };
   }
@@ -100,7 +87,6 @@ export class RoleService {
     if (!updatedRole) {
       throw new BadRequestException('Failed to add permissions to role');
     }
-    await this.cache.delete(CacheKeys.rolePermissions(id));
     this.logger.log(`Permissions added to role: ${id} in store: ${storeId}`);
     return { success: true };
   }
@@ -120,7 +106,6 @@ export class RoleService {
     if (!updatedRole) {
       throw new BadRequestException('Failed to remove permissions from role');
     }
-    await this.cache.delete(CacheKeys.rolePermissions(id));
     this.logger.log(
       `Permissions removed from role: ${id} in store: ${storeId}`,
     );
