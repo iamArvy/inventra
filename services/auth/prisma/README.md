@@ -1,0 +1,1 @@
+Write about the folder structure and explain the models and relationships

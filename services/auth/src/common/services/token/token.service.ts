@@ -21,8 +21,8 @@ export class TokenService {
   async access(
     id: string,
     storeId: string,
+    role: string,
     emailVerified: boolean,
-    role: string = 'user',
   ): Promise<TokenData> {
     return await this.generate(
       { sub: id, type: 'access', storeId, emailVerified, role },

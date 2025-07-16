@@ -6,6 +6,7 @@ import { SecretService } from 'src/common/services/secret/secret.service';
 import { ClientDto, ClientList, Secret } from './client.dto';
 import { Status } from 'src/common/dto/app.response';
 import { Client } from 'generated/prisma';
+import { BadRequestException } from 'src/common/helpers/grpc-exception';
 
 @Injectable()
 export class ClientService {
@@ -25,10 +26,6 @@ export class ClientService {
     data: ClientInput,
     permissions: string[],
   ): Promise<Client> {
-    // Validate storeId and data
-    if (!storeId || !data) {
-      throw new Error('Store ID and client data are required');
-    }
     const secret = this.generateSecret();
     const hashedSecret = await this.secretService.create(secret);
     const client = await this.repo.create({
@@ -36,9 +33,6 @@ export class ClientService {
       hashedSecret,
       ...data,
     });
-    if (!client) {
-      throw new Error('Failed to create client');
-    }
     this.logger.log(
       `Client created with ID: ${client.id} in store: ${storeId}`,
       'ClientService.create',
@@ -56,15 +50,13 @@ export class ClientService {
     storeId: string,
     data: Partial<ClientInput>,
   ): Promise<Status> {
-    if (!id || !storeId || !data) {
-      throw new Error('ID, store ID, and client data are required');
-    }
     const client = await this.repo.findByIdOrThrow(id);
     if (client.storeId !== storeId) {
-      throw new Error('Client does not belong to the specified store');
+      throw new BadRequestException(
+        'Client does not belong to the specified store',
+      );
     }
-    const update = await this.repo.update(id, data);
-    if (!update) throw new Error('Failed to update client');
+    await this.repo.update(id, data);
     this.logger.log(
       `Client updated with ID: ${client.id} in store: ${storeId}`,
       'ClientService.update',
@@ -78,10 +70,7 @@ export class ClientService {
     const client = await this.repo.findByIdOrThrow(id);
     const secret = this.generateSecret();
     const hashedSecret = await this.secretService.create(secret);
-    const updatedClient = await this.repo.update(client.id, { hashedSecret });
-    if (!updatedClient) {
-      throw new Error('Failed to update client secret');
-    }
+    await this.repo.update(client.id, { hashedSecret });
     this.logger.log(
       `Client secret refresh for ID: ${client.id}`,
       'ClientService.refreshSecret',

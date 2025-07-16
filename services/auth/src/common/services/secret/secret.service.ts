@@ -1,6 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as argon from 'argon2';
-
+import { UnauthorizedException } from 'src/common/helpers/grpc-exception';
 @Injectable()
 export class SecretService {
   async compare(hash: string, secret: string): Promise<boolean> {

@@ -7,7 +7,6 @@ import { RoleModule } from './modules/role/role.module';
 import { SessionModule } from './modules/session/session.module';
 import { PassportModule } from '@nestjs/passport';
 import { MessagingModule } from './messaging/messaging.module';
-import { AppController } from './app.controller';
 import { PermissionModule } from './modules/permission/permission.module';
 import { RepositoryModule } from './db/repository/repository.module';
 
@@ -24,6 +23,5 @@ import { RepositoryModule } from './db/repository/repository.module';
     PermissionModule,
     RepositoryModule,
   ],
-  controllers: [AppController],
 })
 export class AppModule {}

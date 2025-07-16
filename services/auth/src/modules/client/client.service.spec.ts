@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ClientService } from './client.service';
 import { ClientRepo } from 'src/db/repository/repositories/client.repo';
 import { SecretService } from 'src/common/services/secret/secret.service';
+import { BadRequestException } from 'src/common/helpers/grpc-exception';
 
 const mockClientRepo = () => ({
   create: jest.fn(),
@@ -37,6 +38,15 @@ describe('ClientService', () => {
   });
 
   describe('create', () => {
+    it('should not attach permissions if no permissions', async () => {
+      secret.create.mockResolvedValue('hashed');
+      repo.create.mockResolvedValue({ id: 'client1' });
+
+      const result = await service.create('store1', { name: 'Test' }, []);
+      expect(result.id).toBe('client1');
+      expect(repo.attachPermissions).not.toHaveBeenCalled();
+    });
+
     it('should create a client and attach permissions', async () => {
       secret.create.mockResolvedValue('hashed');
       repo.create.mockResolvedValue({ id: 'client1' });
@@ -48,6 +58,22 @@ describe('ClientService', () => {
   });
 
   describe('update', () => {
+    it('should throw error if storeId does not match', async () => {
+      repo.findByIdOrThrow.mockResolvedValue({
+        id: 'client1',
+        storeId: 'store2',
+      });
+      await expect(
+        service.update('client1', 'store1', {
+          name: 'Updated',
+        }),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Client does not belong to the specified store',
+        ),
+      );
+    });
+
     it('should update a client', async () => {
       repo.findByIdOrThrow.mockResolvedValue({
         id: 'client1',

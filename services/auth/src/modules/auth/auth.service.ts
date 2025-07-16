@@ -1,14 +1,15 @@
+import { Injectable, Logger } from '@nestjs/common';
 import {
-  Injectable,
-  Logger,
+  BadRequestException,
   NotFoundException,
+  InternalServerErrorException,
   UnauthorizedException,
-} from '@nestjs/common';
+} from 'src/common/helpers/grpc-exception';
 import { Status } from 'src/common/dto/app.response';
 import { TokenService } from 'src/common/services/token/token.service';
 import { SecretService } from 'src/common/services/secret/secret.service';
 import { LoginData, RegisterData } from './auth.inputs';
-import { AuthResponse } from './auth.response';
+import { AuthResponse } from './auth.dto';
 import { UserEvent } from 'src/messaging/event/user.event';
 import { RoleRepo, ClientRepo, UserRepo, SessionRepo } from 'src/db/repository';
 import { UserDto } from '../user/user.dto';
@@ -33,10 +34,16 @@ export class AuthService {
     sessionId: string,
     userId: string,
     storeId: string,
+    roleId: string,
     emailVerified: boolean = false,
   ): Promise<AuthResponse> {
     const refresh = await this.token.refresh(sessionId);
-    const access = await this.token.access(userId, storeId, emailVerified);
+    const access = await this.token.access(
+      userId,
+      storeId,
+      roleId,
+      emailVerified,
+    );
     const hashed = await this.secret.create(refresh.token);
     await this.sessionRepo.updateRefreshToken(sessionId, hashed);
 
@@ -46,52 +53,24 @@ export class AuthService {
     };
   }
 
-  private async authenticateUser(
-    id: string,
-    userAgent: string,
-    ipAddress: string,
-    newUser: boolean = false,
-    storeId: string,
-    emailVerified: boolean = false,
-  ): Promise<AuthResponse> {
-    const existingSession = await this.sessionRepo.findByUserIdAndDevice(
-      id,
-      userAgent,
-      ipAddress,
-    );
-
-    if (existingSession) {
-      return this.issueTokens(existingSession.id, id, storeId, emailVerified);
-    }
-
-    const session = await this.sessionRepo.create({
-      user: { connect: { id } },
-      userAgent,
-      ipAddress,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    });
-    if (!newUser) {
-      this.userEvent.newDeviceLogin({
-        userId: id,
-        userAgent,
-        ipAddress,
-      });
-    }
-    return this.issueTokens(session.id, id, storeId, emailVerified);
-  }
-
   async signup(
     storeId: string,
     data: RegisterData,
     userAgent: string,
     ipAddress: string,
   ): Promise<AuthResponse> {
-    if (!data) throw new UnauthorizedException('Invalid credentials');
-    const exists = await this.userRepo.findByEmail(data.email);
-    if (exists) throw new UnauthorizedException('User already exists');
+    if (!storeId || !data || !userAgent || !ipAddress)
+      throw new BadRequestException('Invalid credentials');
+    const uExists = await this.userRepo.findByEmail(data.email);
+    if (uExists) throw new BadRequestException('User already exists');
+    const rExists = await this.roleRepo.findRoleByNameAndStore(
+      storeId,
+      'owner',
+    );
+    if (rExists) throw new BadRequestException('Role Already Exists in store');
     const hash = await this.secret.create(data.password);
     const role = await this.roleRepo.createOwner(storeId);
-    if (!role) throw new UnauthorizedException('Role creation failed');
+    if (!role) throw new InternalServerErrorException();
     const user = await this.userRepo.create({
       ...data,
       passwordHash: hash,
@@ -99,7 +78,7 @@ export class AuthService {
       role: { connect: { id: role.id } },
     });
 
-    if (!user) throw new UnauthorizedException('User creation failed');
+    if (!user) throw new InternalServerErrorException();
 
     const pUser = new UserDto(user);
     this.userEvent.created(pUser);
@@ -111,13 +90,19 @@ export class AuthService {
       email: user.email,
     });
 
-    return this.authenticateUser(
-      user.id,
+    const session = await this.sessionRepo.create({
+      user: { connect: { id: user.id } },
       userAgent,
       ipAddress,
-      true,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    return this.issueTokens(
+      session.id,
+      user.id,
       storeId,
-      false,
+      user.roleId,
+      user.emailVerified,
     );
   }
 
@@ -128,15 +113,36 @@ export class AuthService {
   ): Promise<AuthResponse> {
     const user = await this.userRepo.findByEmail(data.email);
     if (!user) throw new UnauthorizedException('User not found');
+    const { id, storeId, emailVerified, roleId } = user;
     await this.secret.compare(user.passwordHash, data.password);
-    return this.authenticateUser(
-      user.id,
+    const existingSession = await this.sessionRepo.findByUserIdAndDevice(
+      id,
       userAgent,
       ipAddress,
-      false,
-      user.storeId,
-      user.emailVerified,
     );
+
+    if (existingSession) {
+      return this.issueTokens(
+        existingSession.id,
+        id,
+        storeId,
+        roleId,
+        emailVerified,
+      );
+    }
+
+    const session = await this.sessionRepo.create({
+      user: { connect: { id } },
+      userAgent,
+      ipAddress,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+    this.userEvent.newDeviceLogin({
+      id,
+      userAgent,
+      ipAddress,
+    });
+    return this.issueTokens(session.id, id, storeId, roleId, emailVerified);
   }
 
   private async verifyRefreshToken(refresh_token: string): Promise<string> {
@@ -153,19 +159,19 @@ export class AuthService {
       throw new UnauthorizedException('Session has no refresh token');
 
     await this.secret.compare(session.hashedRefreshToken, refresh_token);
-    return session.id;
+    return session.userId;
   }
 
   async refreshToken(refresh_token: string): Promise<TokenData> {
-    const sessionId = await this.verifyRefreshToken(refresh_token);
-    const user = await this.userRepo.findById(sessionId);
+    const userId = await this.verifyRefreshToken(refresh_token);
+    const user = await this.userRepo.findById(userId);
     if (!user) throw new NotFoundException('User not found');
     // Generate new tokens
     const access = await this.token.access(
       user.id,
       user.storeId,
-      user.emailVerified,
       user.roleId,
+      user.emailVerified,
     );
     return access;
   }

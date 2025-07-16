@@ -53,3 +53,8 @@ export class CreateUserInput {
   })
   password: string;
 }
+
+export class ResetPasswordInput {
+  token: string;
+  password: string;
+}

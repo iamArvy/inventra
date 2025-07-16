@@ -24,11 +24,7 @@ export class UserEvent extends BaseClientService {
     this.emit(Events.USER_PASSWORD_RESET_REQUESTED, data);
   }
 
-  newDeviceLogin(data: {
-    userId: string;
-    userAgent: string;
-    ipAddress: string;
-  }) {
+  newDeviceLogin(data: { id: string; userAgent: string; ipAddress: string }) {
     this.emit(Events.USER_NEW_DEVICE_LOGIN, data);
   }
 

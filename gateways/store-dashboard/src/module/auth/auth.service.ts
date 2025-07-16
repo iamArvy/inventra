@@ -14,51 +14,48 @@ export class AuthService extends AppService<AuthServiceClient> {
   }
 
   health() {
-    try {
-      return this.service.health({});
-    } catch (error) {
-      this.handleError(error, 'Health check Failed');
-    }
+    return this.service.health({});
   }
 
   async register(userAgent: string, ipAddress: string, data: RegisterInput) {
-    try {
-      const response = await this.call(
-        this.service.register({
-          userAgent,
-          ipAddress,
-          data,
-          storeId: 'store-id',
-        }),
+    const response = await this.call(
+      this.service.register({
+        userAgent,
+        ipAddress,
+        data,
+        storeId: 'store-id',
+      }),
+    );
+    if (response)
+      this.logger.log(
+        `User registered from agent: ${userAgent} with IP Address: ${ipAddress} using email: ${data.email}`,
       );
-      if (response)
-        this.logger.log(
-          `User registered from agent: ${userAgent} with IP Address: ${ipAddress} using email: ${data.email}`,
-        );
-      return response;
-    } catch (error) {
-      this.handleError(
-        error,
-        `Registration failed from userAgent: ${userAgent} with IP Address: ${ipAddress}`,
-      );
-    }
+    return response;
   }
 
   async login(userAgent: string, ipAddress: string, data: LoginInput) {
-    try {
-      const response = await this.call(
-        this.service.login({ userAgent, ipAddress, data }),
+    const response = await this.call(
+      this.service.login({ userAgent, ipAddress, data }),
+    );
+    if (response)
+      this.logger.log(
+        `User with email: ${data.email} Logged in from agent: ${userAgent} and IP Address: ${ipAddress}`,
       );
-      if (response)
-        this.logger.log(
-          `User with email: ${data.email} Logged in from agent: ${userAgent} and IP Address: ${ipAddress}`,
-        );
-      return response;
-    } catch (error) {
-      this.handleError(
-        error,
-        `Login failed for User with email: ${data.email} from agent: ${userAgent} with IP Address: ${ipAddress}`,
-      );
-    }
+    return response;
+  }
+
+  @GrpcMethod('AuthService')
+  refreshToken({ token }: TokenInput): Promise<TokenData> {
+    return this.service.refreshToken(token);
+  }
+
+  @GrpcMethod('AuthService')
+  logout({ token }: TokenInput): Promise<Status> {
+    return this.service.logout(token);
+  }
+
+  @GrpcMethod('AuthService')
+  getClientToken({ id, secret }: ClientTokenRequest): Promise<TokenData> {
+    return this.service.getClientToken(id, secret);
   }
 }
