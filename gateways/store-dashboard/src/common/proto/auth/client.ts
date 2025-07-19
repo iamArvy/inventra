@@ -33,7 +33,7 @@ export interface UpdateClientData {
 export interface UpdateClientInput {
   id: string;
   storeId: string;
-  data?: UpdateClientData | undefined;
+  data: UpdateClientData | undefined;
 }
 
 export interface ClientData {
@@ -211,7 +211,7 @@ export const UpdateClientData: MessageFns<UpdateClientData> = {
 };
 
 function createBaseUpdateClientInput(): UpdateClientInput {
-  return { id: "", storeId: "" };
+  return { id: "", storeId: "", data: undefined };
 }
 
 export const UpdateClientInput: MessageFns<UpdateClientInput> = {

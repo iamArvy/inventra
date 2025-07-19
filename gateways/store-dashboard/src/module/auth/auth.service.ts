@@ -1,30 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { LoginInput, RegisterInput } from 'src/module/auth/auth.inputs';
-import { ClientGrpc } from '@nestjs/microservices';
-import {
-  AUTH_SERVICE_NAME,
-  AuthServiceClient,
-} from 'src/common/proto/auth/auth';
-import { AppService } from 'src/app.service';
+import { AuthClient } from '@grpc-clients/auth/auth.client';
 
 @Injectable()
-export class AuthService extends AppService<AuthServiceClient> {
-  constructor(@Inject('auth') client: ClientGrpc) {
-    super(client, AUTH_SERVICE_NAME);
-  }
+export class AuthService {
+  constructor(private client: AuthClient) {}
 
+  protected readonly logger = new Logger(this.constructor.name);
   health() {
-    return this.service.health({});
+    return this.client.health();
   }
 
   async register(userAgent: string, ipAddress: string, data: RegisterInput) {
-    const response = await this.call(
-      this.service.register({
-        userAgent,
-        ipAddress,
-        data,
-        storeId: 'store-id',
-      }),
+    const response = await this.client.register(
+      userAgent,
+      ipAddress,
+      data,
+      'teststore',
     );
     if (response)
       this.logger.log(
@@ -34,9 +26,7 @@ export class AuthService extends AppService<AuthServiceClient> {
   }
 
   async login(userAgent: string, ipAddress: string, data: LoginInput) {
-    const response = await this.call(
-      this.service.login({ userAgent, ipAddress, data }),
-    );
+    const response = await this.client.login(userAgent, ipAddress, data);
     if (response)
       this.logger.log(
         `User with email: ${data.email} Logged in from agent: ${userAgent} and IP Address: ${ipAddress}`,
@@ -44,18 +34,15 @@ export class AuthService extends AppService<AuthServiceClient> {
     return response;
   }
 
-  @GrpcMethod('AuthService')
-  refreshToken({ token }: TokenInput): Promise<TokenData> {
-    return this.service.refreshToken(token);
+  async refreshToken(token: string) {
+    return this.client.refreshToken(token);
   }
 
-  @GrpcMethod('AuthService')
-  logout({ token }: TokenInput): Promise<Status> {
-    return this.service.logout(token);
+  logout(token: string) {
+    return this.client.logout(token);
   }
 
-  @GrpcMethod('AuthService')
-  getClientToken({ id, secret }: ClientTokenRequest): Promise<TokenData> {
-    return this.service.getClientToken(id, secret);
+  getClientToken(id: string, secret: string) {
+    return this.client.getClientToken(id, secret);
   }
 }

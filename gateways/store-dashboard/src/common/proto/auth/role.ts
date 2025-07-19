@@ -377,9 +377,11 @@ export interface RoleServiceClient {
 
   update(request: UpdateRoleInput): Observable<Status>;
 
-  find(request: Id): Observable<RoleData>;
+  get(request: Id): Observable<RoleData>;
 
   list(request: Id): Observable<RoleList>;
+
+  listByStore(request: Id): Observable<RoleList>;
 
   attachPermissions(request: PermissionsOperations): Observable<Status>;
 
@@ -395,9 +397,11 @@ export interface RoleServiceController {
 
   update(request: UpdateRoleInput): Promise<Status> | Observable<Status> | Status;
 
-  find(request: Id): Promise<RoleData> | Observable<RoleData> | RoleData;
+  get(request: Id): Promise<RoleData> | Observable<RoleData> | RoleData;
 
   list(request: Id): Promise<RoleList> | Observable<RoleList> | RoleList;
+
+  listByStore(request: Id): Promise<RoleList> | Observable<RoleList> | RoleList;
 
   attachPermissions(request: PermissionsOperations): Promise<Status> | Observable<Status> | Status;
 
@@ -412,8 +416,9 @@ export function RoleServiceControllerMethods() {
       "health",
       "create",
       "update",
-      "find",
+      "get",
       "list",
+      "listByStore",
       "attachPermissions",
       "detachPermissions",
       "delete",
@@ -461,8 +466,8 @@ export const RoleServiceService = {
     responseSerialize: (value: Status): Buffer => Buffer.from(Status.encode(value).finish()),
     responseDeserialize: (value: Buffer): Status => Status.decode(value),
   },
-  find: {
-    path: "/auth.RoleService/Find",
+  get: {
+    path: "/auth.RoleService/Get",
     requestStream: false,
     responseStream: false,
     requestSerialize: (value: Id): Buffer => Buffer.from(Id.encode(value).finish()),
@@ -472,6 +477,15 @@ export const RoleServiceService = {
   },
   list: {
     path: "/auth.RoleService/List",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: Id): Buffer => Buffer.from(Id.encode(value).finish()),
+    requestDeserialize: (value: Buffer): Id => Id.decode(value),
+    responseSerialize: (value: RoleList): Buffer => Buffer.from(RoleList.encode(value).finish()),
+    responseDeserialize: (value: Buffer): RoleList => RoleList.decode(value),
+  },
+  listByStore: {
+    path: "/auth.RoleService/ListByStore",
     requestStream: false,
     responseStream: false,
     requestSerialize: (value: Id): Buffer => Buffer.from(Id.encode(value).finish()),
@@ -514,8 +528,9 @@ export interface RoleServiceServer extends UntypedServiceImplementation {
   health: handleUnaryCall<Empty, Status>;
   create: handleUnaryCall<CreateRoleInput, RoleData>;
   update: handleUnaryCall<UpdateRoleInput, Status>;
-  find: handleUnaryCall<Id, RoleData>;
+  get: handleUnaryCall<Id, RoleData>;
   list: handleUnaryCall<Id, RoleList>;
+  listByStore: handleUnaryCall<Id, RoleList>;
   attachPermissions: handleUnaryCall<PermissionsOperations, Status>;
   detachPermissions: handleUnaryCall<PermissionsOperations, Status>;
   delete: handleUnaryCall<Id, Status>;

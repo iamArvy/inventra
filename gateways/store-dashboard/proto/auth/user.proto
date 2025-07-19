@@ -4,7 +4,7 @@ package auth;
 
 import "google/protobuf/empty.proto";
 
-import "common.proto";
+import "auth/common.proto";
 
 service UserService {
   rpc Health(google.protobuf.Empty) returns (common.Status);

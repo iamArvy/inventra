@@ -9,6 +9,13 @@ import { JwtStrategy } from './common/strategies';
 // import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo
 import { UserModule } from './module/user/user.module';
 import { CacheModule } from './cache/cache.module';
+import { AuthModule } from './grpc-clients/auth/auth.module';
+import { UserModule } from './grpc-clients/user/user.module';
+import { RoleModule } from './grpc-clients/role/role.module';
+import { PermissionModule } from './grpc-clients/permission/permission.module';
+import { ClientModule } from './grpc-clients/client/client.module';
+import { SessionModule } from './grpc-client/session/session.module';
+import { SessionModule } from './grpc-clients/session/session.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,6 +27,11 @@ import { CacheModule } from './cache/cache.module';
     // CategoryModule,
     UserModule,
     CacheModule,
+    AuthModule,
+    RoleModule,
+    PermissionModule,
+    ClientModule,
+    SessionModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     //   driver: ApolloDriver,
     //   autoSchemaFile: true,

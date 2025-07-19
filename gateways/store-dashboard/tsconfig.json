@@ -16,6 +16,24 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "resolveJsonModule": true, // Add this line
+    "paths": {
+      "@modules/*": [
+        "src/modules/*"
+      ],
+      "@common/*": [
+        "src/common/*"
+      ],
+      // "@config/*": [
+      //   "src/config/*"
+      // ],
+      "@grpc-clients/*": [
+        "src/grpc-clients/*"
+      ],
+      "@cache/*": [
+        "src/cache/*"
+      ]
+    }
   }
 }

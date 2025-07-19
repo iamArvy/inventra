@@ -300,7 +300,7 @@ export interface PermissionServiceClient {
 
   update(request: UpdatePermissionInput): Observable<Status>;
 
-  find(request: Id): Observable<PermissionData>;
+  get(request: Id): Observable<PermissionData>;
 
   list(request: Empty): Observable<PermissionList>;
 
@@ -316,7 +316,7 @@ export interface PermissionServiceController {
 
   update(request: UpdatePermissionInput): Promise<Status> | Observable<Status> | Status;
 
-  find(request: Id): Promise<PermissionData> | Observable<PermissionData> | PermissionData;
+  get(request: Id): Promise<PermissionData> | Observable<PermissionData> | PermissionData;
 
   list(request: Empty): Promise<PermissionList> | Observable<PermissionList> | PermissionList;
 
@@ -327,7 +327,7 @@ export interface PermissionServiceController {
 
 export function PermissionServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["health", "create", "update", "find", "list", "listRolePermissions", "delete"];
+    const grpcMethods: string[] = ["health", "create", "update", "get", "list", "listRolePermissions", "delete"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("PermissionService", method)(constructor.prototype[method], method, descriptor);
@@ -373,8 +373,8 @@ export const PermissionServiceService = {
     responseSerialize: (value: Status): Buffer => Buffer.from(Status.encode(value).finish()),
     responseDeserialize: (value: Buffer): Status => Status.decode(value),
   },
-  find: {
-    path: "/auth.PermissionService/Find",
+  get: {
+    path: "/auth.PermissionService/Get",
     requestStream: false,
     responseStream: false,
     requestSerialize: (value: Id): Buffer => Buffer.from(Id.encode(value).finish()),
@@ -415,7 +415,7 @@ export interface PermissionServiceServer extends UntypedServiceImplementation {
   health: handleUnaryCall<Empty, Status>;
   create: handleUnaryCall<CreatePermissionInput, PermissionData>;
   update: handleUnaryCall<UpdatePermissionInput, Status>;
-  find: handleUnaryCall<Id, PermissionData>;
+  get: handleUnaryCall<Id, PermissionData>;
   list: handleUnaryCall<Empty, PermissionList>;
   listRolePermissions: handleUnaryCall<Id, PermissionList>;
   delete: handleUnaryCall<Id, Status>;

@@ -10,8 +10,9 @@ service RoleService {
   rpc Health(google.protobuf.Empty) returns (common.Status);
   rpc Create(CreateRoleInput) returns (RoleData);
   rpc Update(UpdateRoleInput) returns (common.Status);
-  rpc Find(common.Id) returns (RoleData);
+  rpc Get(common.Id) returns (RoleData);
   rpc List(common.Id) returns (RoleList);
+  rpc ListByStore(common.Id) returns (RoleList);
   rpc AttachPermissions(common.PermissionsOperations) returns (common.Status);
   rpc DetachPermissions(common.PermissionsOperations) returns (common.Status);
   rpc Delete(common.Id) returns (common.Status);

@@ -37,7 +37,7 @@ message UpdateClientData {
 message UpdateClientInput {
   string id = 1;
   string storeId = 2;
-  optional UpdateClientData data = 3;
+  UpdateClientData data = 3;
 }
 
 message ClientData {
