@@ -42,6 +42,10 @@ export class RoleService {
     return { roles: await this.repo.listByStore(storeId) };
   }
 
+  async list(): Promise<RoleList> {
+    return { roles: await this.repo.findAll() };
+  }
+
   async get(id: string): Promise<RoleDto> {
     const role = await this.repo.findById(id);
     if (!role) throw new NotFoundException('Role not found');

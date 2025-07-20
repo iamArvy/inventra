@@ -31,8 +31,13 @@ export class RoleController {
   }
 
   @GrpcMethod('RoleService')
-  list({ id }: { id: string }): Promise<RoleList> {
+  listByStore({ id }: { id: string }): Promise<RoleList> {
     return this.service.listByStore(id);
+  }
+
+  @GrpcMethod('RoleService')
+  list(): Promise<RoleList> {
+    return this.service.list();
   }
 
   @GrpcMethod('RoleService')
