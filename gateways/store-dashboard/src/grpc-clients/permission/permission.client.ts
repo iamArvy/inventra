@@ -22,7 +22,7 @@ export class PermissionClient extends BaseClient<PermissionServiceClient> {
 
   get(id: string): Promise<PermissionData> {
     return this.call(
-      this.service.find({
+      this.service.get({
         id,
       }),
     );

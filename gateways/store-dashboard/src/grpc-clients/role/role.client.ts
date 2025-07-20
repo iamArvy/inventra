@@ -47,7 +47,7 @@ export class ClientClient extends BaseClient<RoleServiceClient> {
 
   get(id: string): Promise<RoleData> {
     return this.call(
-      this.service.find({
+      this.service.get({
         id,
       }),
     );
