@@ -56,7 +56,7 @@ export class ClientClient extends BaseClient<RoleServiceClient> {
   // make list by store and normal list in the microservice
   list(id: string): Promise<RoleList> {
     return this.call(
-      this.service.list({
+      this.service.listByStore({
         id,
       }),
     );
