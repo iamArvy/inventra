@@ -20,6 +20,18 @@
     "paths": {
       "src/*": [
         "./src/*"
+      ],
+      "events/*": [
+        "src/messaging/events/*"
+      ],
+      "db/*": [
+        "./src/db/*"
+      ],
+      "common/*": [
+        "./src/common/*"
+      ],
+      "helpers/*": [
+        "./src/common/helpers*"
       ]
     }
   }

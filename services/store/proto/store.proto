@@ -4,25 +4,24 @@ import "google/protobuf/empty.proto";
 package store;
 
 service StoreService {
-  rpc Health (google.protobuf.Empty) returns (HealthCheckResponse) {}
+  rpc Health (google.protobuf.Empty) returns (Status) {}
   rpc Create (CreateStoreInput) returns (Store) {}
   rpc GetById (StoreById) returns (Store) {}
-  rpc GetByOwner (StoreById) returns (Store) {}
   rpc GetActive (google.protobuf.Empty) returns (StoreList) {}
   rpc GetInactive (google.protobuf.Empty) returns (StoreList) {}
   rpc GetPending (google.protobuf.Empty) returns (StoreList) {}
   rpc List (google.protobuf.Empty) returns (StoreList) {}
-  rpc Update (UpdateStoreInput) returns (Store) {}
-  rpc Activate (StoreById) returns (google.protobuf.Empty) {}
-  rpc Deactivate (StoreById) returns (google.protobuf.Empty) {}  
+  rpc Update (UpdateStoreInput) returns (Status) {}
+  rpc Activate (StoreById) returns (Status) {}
+  rpc Deactivate (StoreById) returns (Status) {}  
 }
 
 
-message HealthCheckResponse {
+message Status {
   string status = 1;
 }
 
-message StoreById {
+message IdInput {
   string id = 1;
 }
 
@@ -34,12 +33,11 @@ message Store {
   string website = 5;
   string phone = 6;
   string email = 7;
-  string owner_id = 8;
-  string status = 9; // active, inactive, pending
-  string created_at = 10;
-  string updated_at = 11;
-  string deleted_at = 12;
-  string logo_url = 13; // URL to the store's logo
+  string status = 8; // active, inactive, pending
+  string created_at = 9;
+  string updated_at = 10;
+  string deleted_at = 11;
+  string logo_url = 12; // URL to the store's logo
 }
 
 message StoreList {
@@ -54,7 +52,7 @@ message StoreInput {
   string name = 1;
 }
 
-message StoreData {
+message CreateStoreInput {
   string name = 1;
   optional string description = 2;
   optional string location = 3;   
@@ -72,12 +70,7 @@ message PartialStoreData {
   optional string email = 6;
 }
 
-message CreateStoreInput{
-  string owner_id = 1;
-  StoreData data= 2;
-}
-
 message UpdateStoreInput{
-  string owner_id = 1;
+  string id = 1;
   PartialStoreData data = 2;
 }

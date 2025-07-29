@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from 'db/prisma.service';
 import { Prisma, Store } from 'generated/prisma';
 
 type StoreStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE';
@@ -23,14 +23,6 @@ export class StoreRepository {
   findById(id: string) {
     return this.prisma.store.findUnique({
       where: { id },
-    });
-  }
-
-  findByOwnerId(owner_id: string) {
-    return this.prisma.store.findUnique({
-      where: {
-        owner_id,
-      },
     });
   }
 

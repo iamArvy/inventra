@@ -6,18 +6,18 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { TokenService } from 'src/common/services/token/token.service';
-import { UserRepo, RoleRepo } from 'src/db/repository';
-import { SecretService } from 'src/common/services/secret/secret.service';
-import { Status } from 'src/common/dto/app.response';
-import { UserEvent } from 'src/messaging/event/user.event';
+import { TokenService } from 'common/services/token/token.service';
+import { UserRepo, RoleRepo } from 'db/repository';
+import { SecretService } from 'common/services/secret/secret.service';
+import { Status } from 'common/dto/app.response';
+import { UserEvent } from 'events/user';
 import { randomBytes } from 'crypto';
 import { UpdatePasswordData, UpdateUserInfo, UserData } from './user.inputs';
 import { UserDto, UserList } from './user.dto';
 import {
   EmailVerificationPayload,
   ResetPasswordPayload,
-} from 'src/common/services/token/token.payload';
+} from 'common/services/token/token.payload';
 
 @Injectable()
 export class UserService {

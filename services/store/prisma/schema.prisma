@@ -17,7 +17,6 @@ datasource db {
 model Store {
   id          String      @id @default(cuid())
   name        String
-  owner_id    String      @unique
   status      StoreStatus @default(PENDING)
   logo_url    String?
   description String?

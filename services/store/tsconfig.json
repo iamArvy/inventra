@@ -16,6 +16,23 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ],
+      "events/*": [
+        "src/messaging/events/*"
+      ],
+      "db/*": [
+        "./src/db/*"
+      ],
+      "common/*": [
+        "./src/common/*"
+      ],
+      "helpers/*": [
+        "./src/common/helpers/*"
+      ]
+    }
   }
 }

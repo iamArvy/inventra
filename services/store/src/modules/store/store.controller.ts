@@ -1,7 +1,8 @@
 import { Controller } from '@nestjs/common';
-import { StoreService } from '../service/store.service';
-import { CreateStoreInput, UpdateStoreInput } from '../dto';
-import { GrpcMethod, RpcException } from '@nestjs/microservices';
+import { StoreService } from './store.service';
+import { CreateStoreInput, UpdateStoreInput } from './store.dto';
+import { GrpcMethod } from '@nestjs/microservices';
+import { IdInput } from 'src/common/dto/app.inputs';
 
 @Controller()
 export class StoreController {
@@ -15,18 +16,12 @@ export class StoreController {
 
   @GrpcMethod('StoreService')
   create(data: CreateStoreInput) {
-    return this.service.createStore(data.ownerId, data.data);
+    return this.service.create(data);
   }
 
   @GrpcMethod('StoreService')
   getById(id: string) {
     return this.service.getStoreById(id);
-  }
-
-  @GrpcMethod('StoreService')
-  getByOwner({ id }: { id: string }) {
-    if (!id) throw new RpcException('Owner ID is required');
-    return this.service.getStoreByOwnerId(id);
   }
 
   @GrpcMethod('StoreService')
@@ -45,9 +40,8 @@ export class StoreController {
   }
 
   @GrpcMethod('StoreService')
-  update(data: UpdateStoreInput) {
-    if (!data.ownerId) throw new RpcException('Owner ID is required');
-    return this.service.updateStore(data.ownerId, data.data);
+  update({ id, data }: UpdateStoreInput) {
+    return this.service.update(id, data);
   }
 
   @GrpcMethod('StoreService')
@@ -56,12 +50,12 @@ export class StoreController {
   }
 
   @GrpcMethod('StoreService')
-  activate(id: string) {
-    return this.service.activateStore(id);
+  activate({ id }: IdInput) {
+    return this.service.activate(id);
   }
 
   @GrpcMethod('StoreService')
-  deactivate(id: string) {
-    return this.service.deactivateStore(id);
+  deactivate({ id }: IdInput) {
+    return this.service.deactivate(id);
   }
 }

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
-import { TokenService } from 'src/common/services/token/token.service';
-import { SecretService } from 'src/common/services/secret/secret.service';
-import { UserEvent } from 'src/messaging/event/user.event';
-import { RoleRepo, UserRepo } from 'src/db/repository';
+import { TokenService } from 'common/services/token/token.service';
+import { SecretService } from 'common/services/secret/secret.service';
+import { UserEvent } from 'events/user';
+import { RoleRepo, UserRepo } from 'db/repository';
 import {
   NotFoundException,
   UnauthorizedException,

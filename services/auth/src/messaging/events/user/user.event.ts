@@ -1,35 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { Events } from '../messaging.constants';
-import { BaseClientService } from '../base-client.service';
+import { UserEvents } from './user.keys';
 import { UserDto } from 'src/modules/user/user.dto';
+import { RabbitmqService } from 'src/messaging/rabbitmq.service';
 
 @Injectable()
-export class UserEvent extends BaseClientService {
+export class UserEvent {
+  constructor(private readonly rmq: RabbitmqService) {}
   created(data: UserDto) {
-    this.emit(Events.USER_CREATED, data);
+    this.rmq.emit(UserEvents.USER_CREATED, data);
   }
+
   updated(data: { userId: string; email: string }) {
-    this.emit(Events.USER_UPDATED, data);
+    this.rmq.emit(UserEvents.USER_UPDATED, data);
   }
 
   emailVerificationRequested(data: { token: string; email: string }) {
-    this.emit(Events.USER_EMAIL_VERIFICATION_REQUESTED, data);
+    this.rmq.emit(UserEvents.USER_EMAIL_VERIFICATION_REQUESTED, data);
   }
 
   emailVerified(data: { userId: string; email: string }) {
-    this.emit(Events.USER_EMAIL_VERIFIED, data);
+    this.rmq.emit(UserEvents.USER_EMAIL_VERIFIED, data);
   }
 
   passwordResetRequested(data: { email: string; token: string }) {
-    this.emit(Events.USER_PASSWORD_RESET_REQUESTED, data);
+    this.rmq.emit(UserEvents.USER_PASSWORD_RESET_REQUESTED, data);
   }
 
   newDeviceLogin(data: { id: string; userAgent: string; ipAddress: string }) {
-    this.emit(Events.USER_NEW_DEVICE_LOGIN, data);
+    this.rmq.emit(UserEvents.USER_NEW_DEVICE_LOGIN, data);
   }
 
   deactivated(id: string) {
-    this.emit(Events.USER_DEACTIVATED, { id });
+    this.rmq.emit(UserEvents.USER_DEACTIVATED, { id });
   }
   // passwordChanged(data: { userId: string }) {
   //   this.emit(Events.USER_PASSWORD_CHANGED, data);

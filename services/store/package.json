@@ -23,14 +23,17 @@
     "@grpc/grpc-js": "^1.13.4",
     "@grpc/proto-loader": "^0.7.15",
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/microservices": "^11.1.2",
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/client": "^6.8.2",
+    "amqp-connection-manager": "^4.1.14",
+    "amqplib": "^0.10.8",
+    "prisma": "^6.8.2",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "prisma": "^6.8.2"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -74,6 +77,14 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1",
+      "^generated/prisma$": "<rootDir>/../generated/prisma/index.js",
+      "^events/(.*)$": "<rootDir>/messaging/events/$1",
+      "^common/(.*)$": "<rootDir>/common/$1",
+      "^helpers/(.*)$": "<rootDir>/common/helpers/$1",
+      "^db/(.*)$": "<rootDir>/db/$1"
+    }
   }
 }
