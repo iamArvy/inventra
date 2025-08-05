@@ -1,5 +1,5 @@
 {
-  "name": "product",
+  "name": "inventory",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -20,27 +20,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@aws-sdk/client-sns": "^3.830.0",
-    "@grpc/grpc-js": "^1.13.4",
-    "@grpc/proto-loader": "^0.7.15",
-    "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.1",
-    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
-    "@nestjs/mapped-types": "^2.1.0",
-    "@nestjs/microservices": "^11.1.2",
-    "@nestjs/mongoose": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
-    "amqp-connection-manager": "^4.1.14",
-    "amqplib": "^0.10.8",
-    "cache-manager": "^6.4.3",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.2",
-    "google-proto-files": "^5.0.0",
-    "grpc-health-check": "^2.0.2",
-    "keyv": "^5.3.3",
-    "mongoose": "^8.15.1",
-    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -86,14 +68,6 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/$1",
-      "^events/(.*)$": "<rootDir>/messaging/events/$1",
-      "^common/(.*)$": "<rootDir>/common/$1",
-      "^helpers/(.*)$": "<rootDir>/common/helpers/$1",
-      "^category/(.*)$": "<rootDir>/category/$1",
-      "^product/(.*)$": "<rootDir>/product/$1"
-    }
+    "testEnvironment": "node"
   }
 }

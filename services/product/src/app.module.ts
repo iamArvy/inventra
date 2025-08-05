@@ -1,18 +1,21 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { AttributeModule } from './modules/attribute/attribute.module';
-import { CategoryModule } from './modules/category/category.module';
-import { ProductModule } from './modules/product/product.module';
-import { VariantModule } from './modules/variant/variant.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CategoryModule } from 'category/category.module';
+import { ProductModule } from 'product/product.module';
+import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    AttributeModule,
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>('MONGODB_URI') || 'mongodb://localhost/nest',
+      }),
+    }),
     CategoryModule,
     ProductModule,
-    VariantModule,
   ],
 })
 export class AppModule {}

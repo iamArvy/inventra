@@ -14,128 +14,6 @@ message Name {
   string name = 1;
 }
 
-message AttributeInput {
-  string key = 1;
-  string value = 2;
-}
-
-message PartialAttributeInput {
-  optional string key = 1;
-  optional string value = 2;
-}
-
-message CreateAttributeInput {
-  string variant_id = 1;
-  AttributeInput data = 2;
-}
-
-message UpdateAttributeInput {
-  string id = 1;
-  PartialAttributeInput data = 2;
-}
-
-message AttributeOrderBy {
-  optional string key = 1;
-  optional string value = 2;
-  optional string created_at = 3;
-  optional string updated_at = 4;
-}
-
-message ListAttributeInput {
-  optional string variant_id = 1;
-  optional AttributeOrderBy orderBy = 2;
-  optional int32 skip = 3;
-  optional int32 take = 4;
-}
-
-message ListAttributeByRelationInput {
-  string id = 1;
-  ListAttributeInput params = 2;
-}
-
-message Attribute {
-  string id = 1;
-  string name = 2;
-  string value = 3;
-  string variant_id = 4;
-  string created_at = 5;
-  string updated_at = 6;
-}
-
-message AttributeList {
-  repeated Attribute attributes = 1;
-}
-
-
-service AttributeService {
-  rpc Create (CreateAttributeInput) returns (Attribute) {}
-  rpc Get (Id) returns (Attribute) {}
-  rpc List (ListAttributeInput) returns (AttributeList) {}
-  rpc ListVariantAttributes (ListAttributeByRelationInput) returns (AttributeList) {}
-  rpc Update (UpdateAttributeInput) returns (Attribute) {}
-  rpc Delete (Id) returns (Status) {}
-}
-
-message CategoryInput {
-  string name = 1;
-  string description = 2;
-}
-
-message PartialCategoryInput {
-  optional string name = 1;
-  optional string description = 2;
-}
-
-message CreateCategoryInput {
-  string store_id = 1;
-  CategoryInput data = 2;
-}
-
-message UpdateCategoryInput {
-  string id = 1;
-  PartialCategoryInput data = 2;
-}
-
-message CategoryOrderBy {
-  optional string name = 1; // Sort by key
-  optional string created_at = 2; // Sort by value
-  optional string updated_at = 3; // Sort by value
-}
-
-message ListCategoryInput {
-  optional CategoryOrderBy orderBy = 1;
-  optional int32 skip = 2; // Number of items to skip for pagination
-  optional int32 take = 3;
-}
-
-message ListCategoryByRelationInput {
-  string id = 1;
-  optional ListCategoryInput params = 2;
-}
-
-message Category {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-  string store_id = 4;
-  optional string created_at = 5;
-  optional string updated_at = 6;
-}
-
-message CategoryList {
-  repeated Category categories = 1;
-}
-
-service CategoryService {
-  rpc Create (CreateCategoryInput) returns (Category) {}
-  rpc GetById (Id) returns (Category) {}
-  rpc GetByName (Name) returns (Category) {}
-  rpc List (ListCategoryInput) returns (CategoryList) {}
-  rpc ListStoreCategories (ListCategoryByRelationInput) returns (CategoryList) {}
-  rpc Update (UpdateCategoryInput) returns (Category) {}
-  rpc Delete (Id) returns (Status) {}
-}
-
 message ProductInput {
   string name = 1;
   string description = 2;
@@ -153,7 +31,6 @@ message PartialProductInput {
 message CreateProductInput {
   string store_id = 1;
   ProductInput data = 2;
-  repeated VariantInput variants = 3;
 }
 
 message UpdateProductInput {
@@ -172,13 +49,6 @@ message ProductCategory {
   string name = 2;
 }
 
-message ProductVariant {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-  repeated Attribute attributes = 4;
-}
-
 message Product{
   string id = 1;
   string name = 2;
@@ -187,7 +57,6 @@ message Product{
   string store_id = 5;
   string created_at = 6;
   string updated_at = 7;
-  repeated ProductVariant variants = 8;
 }
 
 message ProductWithRelationships{
@@ -196,7 +65,6 @@ message ProductWithRelationships{
   string description = 3;
   ProductStore store = 4;
   ProductCategory category = 5;
-  repeated ProductVariant variants = 6;
   string created_at = 7;
   string updated_at = 8;
 }
@@ -230,71 +98,5 @@ service ProductService {
   rpc ListCategoryProducts (ListProductByRelationInput) returns (ProductList) {}
   rpc List (ListProductInput) returns (ProductList) {}
   rpc Update (UpdateProductInput) returns (Status) {}
-  rpc Delete (Id) returns (Status) {}
-}
-
-message VariantInput {
-  string sku = 1;
-  int32 price = 2;
-  int32 stock =3;
-  repeated AttributeInput attributes = 4;
-}
-
-message PartialVariantInput {
-  optional string sku = 1;
-  optional int32 price = 2;
-  optional int32 stock = 3;
-}
-
-message CreateVariantInput {
-  string product_id = 1;
-  VariantInput data = 2;
-}
-
-
-message UpdateVariantInput {
-  string id = 1;
-  PartialVariantInput data = 2;
-}
-
-message Variant {
-  string id = 1;
-  string product_id = 2;
-  string sku = 3;
-  int32 price = 4;
-  int32 stock = 5;
-  repeated Attribute attributes = 6;
-  string created_at = 7;
-  string updated_at = 8;
-}
-
-message VariantList {
-  repeated Variant variants = 1;
-}
-
-
-message VariantOrderBy {
-  optional int32 price = 1; // Sort by key
-  optional string created_at = 2; // Sort by value
-  optional string updated_at = 3; // Sort by value
-}
-
-message ListVariantInput {
-  optional VariantOrderBy orderBy = 1;
-  optional int32 skip = 2; // Number of items to skip for pagination
-  optional int32 take = 3;
-}
-
-message ListVariantByRelationInput {
-  string id = 1;
-  optional ListVariantInput params = 2;
-}
-
-service VariantService {
-  rpc Create (CreateVariantInput) returns (Status) {}
-  rpc Get (Id) returns (Variant) {}
-  rpc ListProductVariants (ListVariantByRelationInput) returns (VariantList) {}
-  rpc List (ListVariantInput) returns (VariantList) {}
-  rpc Update (UpdateVariantInput) returns (Status) {}
   rpc Delete (Id) returns (Status) {}
 }

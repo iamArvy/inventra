@@ -16,26 +16,6 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "src/*": [
-        "./src/*"
-      ],
-      "events/*": [
-        "src/messaging/events/*"
-      ],
-      "common/*": [
-        "./src/common/*"
-      ],
-      "helpers/*": [
-        "./src/common/helpers/*"
-      ],
-      "category/*": [
-        "./src/category/*"
-      ],
-      "product/*": [
-        "./src/product/*"
-      ]
-    }
+    "noFallthroughCasesInSwitch": false
   }
 }
