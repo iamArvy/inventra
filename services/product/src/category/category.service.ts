@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CategoryDto, CategoryInput, PartialCategoryInput } from './dto';
 import { CategoryRepository } from './category.repository';
-import { BadRequestException } from 'src/common/helpers/grpc-exception';
 
 @Injectable()
 export class CategoryService {

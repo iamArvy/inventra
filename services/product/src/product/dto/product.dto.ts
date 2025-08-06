@@ -1,6 +1,6 @@
 import { CategoryDto } from 'category/dto';
 import { Expose, plainToInstance, Transform } from 'class-transformer';
-import { ProductDocument } from '../product.schema';
+import { Product, ProductDocument } from '../product.schema';
 
 export class ProductDto {
   @Expose()
@@ -36,6 +36,8 @@ export class ProductDto {
 
   @Expose()
   tags: string[];
+
+  @Expose()
   category?: CategoryDto;
 
   @Expose()
@@ -44,13 +46,13 @@ export class ProductDto {
   @Expose()
   created_at: Date;
 
-  static from(data: ProductDocument): CategoryDto {
+  static from(data: Product): ProductDto {
     return plainToInstance(ProductDto, data, {
       excludeExtraneousValues: true,
     });
   }
 
-  static fromMany(data: ProductDocument[]): CategoryDto[] {
+  static fromMany(data: ProductDocument[]): ProductDto[] {
     return plainToInstance(ProductDto, data, {
       excludeExtraneousValues: true,
     });

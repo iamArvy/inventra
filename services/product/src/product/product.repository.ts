@@ -1,9 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { NotFoundException } from 'src/common/helpers/grpc-exception';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto, UpdateProductDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { FilterParams } from 'src/common/types/filter-params';
 
 @Injectable()
@@ -17,17 +20,29 @@ export class ProductRepository {
   }
 
   findById(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid product ID format');
+    }
     return this.model.findById(id).exec();
   }
 
   async findByIdOrThrow(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid product ID format');
+    }
     return this.model
       .findById(id)
       .orFail(new NotFoundException('Product not found'))
       .exec();
   }
 
-  findByIdWithRelationships(id: string, relationships = []): Promise<Product> {
+  findByIdWithRelationships(
+    id: string,
+    relationships: string[],
+  ): Promise<Product> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid product ID format');
+    }
     return this.model
       .findById(id, {
         populate: relationships,

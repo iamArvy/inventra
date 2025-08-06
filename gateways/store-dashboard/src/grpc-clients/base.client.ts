@@ -1,11 +1,17 @@
 import { status } from '@grpc/grpc-js';
-import { Logger, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Logger,
+  HttpException,
+  HttpStatus,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom, Observable } from 'rxjs';
 
-export abstract class BaseClient<T extends object> {
+export abstract class BaseClient<T extends object> implements OnModuleInit {
   protected readonly logger = new Logger(this.constructor.name);
   protected service: T;
+  public proxy: T;
 
   constructor(
     protected readonly client: ClientGrpc, // token is configurable
@@ -13,7 +19,18 @@ export abstract class BaseClient<T extends object> {
   ) {}
 
   onModuleInit() {
-    this.service = this.client.getService<T>(this.serviceName);
+    const rawService = this.client.getService<T>(this.serviceName);
+    this.service = rawService;
+
+    this.proxy = new Proxy(rawService, {
+      get: (target, propKey) => {
+        const original = target[propKey as keyof T];
+        if (typeof original !== 'function') {
+          return original;
+        }
+        return (...args: any[]) => this.call(original.apply(target, args));
+      },
+    });
   }
 
   protected async call<T>(obs: Observable<T>): Promise<T> {
@@ -22,6 +39,7 @@ export abstract class BaseClient<T extends object> {
     } catch (error: unknown) {
       // @ts-expect-error issues wil error value
       const { details, code } = error;
+      console.error('GRPC Error:', error);
       throw new HttpException(details, this.mapGrpcCode(code));
     }
   }

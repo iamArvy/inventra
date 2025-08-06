@@ -1,1 +1,1 @@
-export * from './auth.client';
+export * from './auth.grpc.client';

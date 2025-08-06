@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { NotFoundException } from 'src/common/helpers/grpc-exception';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Category } from 'src/category/category.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';

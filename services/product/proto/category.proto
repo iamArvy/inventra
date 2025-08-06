@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package product;
 
+import "common.proto";
+
 message CategoryInput {
   string name = 1;
   string description = 2;
@@ -54,10 +56,10 @@ message CategoryList {
 
 service CategoryService {
   rpc Create (CreateCategoryInput) returns (Category) {}
-  rpc GetById (Id) returns (Category) {}
-  rpc GetByName (Name) returns (Category) {}
+  rpc GetById (common.Id) returns (Category) {}
+  rpc GetByName (common.Name) returns (Category) {}
   rpc List (ListCategoryInput) returns (CategoryList) {}
   rpc ListStoreCategories (ListCategoryByRelationInput) returns (CategoryList) {}
   rpc Update (UpdateCategoryInput) returns (Category) {}
-  rpc Delete (Id) returns (Status) {}
+  rpc Delete (common.Id) returns (common.Status) {}
 }

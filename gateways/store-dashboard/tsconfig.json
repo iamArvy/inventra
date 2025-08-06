@@ -19,21 +19,36 @@
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true, // Add this line
     "paths": {
-      "@modules/*": [
-        "src/modules/*"
-      ],
-      "@common/*": [
+      "common/*": [
         "src/common/*"
       ],
       // "@config/*": [
       //   "src/config/*"
       // ],
-      "@grpc-clients/*": [
+      "grpc-clients/*": [
         "src/grpc-clients/*"
       ],
-      "@cache/*": [
+      "cache/*": [
         "src/cache/*"
-      ]
+      ],
+      "auth/*": [
+        "src/auth/*"
+      ],
+      "category/*": [
+        "src/category/*"
+      ],
+      "product/*": [
+        "src/product/*"
+      ],
+      "client/*": [
+        "src/client/*"
+      ],
+      "store/*": [
+        "src/store/*"
+      ],
+      "user/*": [
+        "src/user/*"
+      ],
     }
   }
 }

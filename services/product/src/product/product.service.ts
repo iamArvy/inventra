@@ -1,40 +1,36 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProductDto, UpdateProductDto } from './dto';
-import { ProductRepository } from 'src/product/product.repository';
-// import { StoreRepository } from 'src/db/repository/repositories/store.repository';
 import {
+  Injectable,
   InternalServerErrorException,
   NotFoundException,
-} from 'src/common/helpers/grpc-exception';
+} from '@nestjs/common';
+import { CreateProductDto, ProductDto, UpdateProductDto } from './dto';
+import { ProductRepository } from 'src/product/product.repository';
 import { FilterParams } from 'src/common/types/filter-params';
 
 @Injectable()
 export class ProductService {
-  constructor(
-    private repo: ProductRepository,
-    // private storeRepo: StoreRepository,
-  ) {}
+  constructor(private repo: ProductRepository) {}
 
   async get(id: string) {
-    const product = await this.repo.findByIdWithRelationships(id);
+    const product = await this.repo.findByIdWithRelationships(id, ['category']);
     if (!product) throw new NotFoundException('Product Not Found');
-    // const store = (await this.storeRepo.findById(product.store_id)) ?? null;
-    const productWithStore = { ...product };
-    return productWithStore;
+    return ProductDto.from(product);
   }
 
   async listProducts(data: FilterParams) {
-    const products = await this.repo.list(data);
+    const products = ProductDto.fromMany(await this.repo.list(data));
     return { products };
   }
 
   async listProductsByCategory(category_id: string, data: FilterParams) {
-    const products = await this.repo.listByCategory(category_id, data);
+    const products = ProductDto.fromMany(
+      await this.repo.listByCategory(category_id, data),
+    );
     return { products };
   }
 
   async listStoreProducts(id: string, data: FilterParams) {
-    const products = await this.repo.listByStore(id, data);
+    const products = ProductDto.fromMany(await this.repo.listByStore(id, data));
     return { products };
   }
 
@@ -42,7 +38,7 @@ export class ProductService {
     const product = await this.repo.create(store_id, data);
 
     if (!product) throw new InternalServerErrorException('Product Not Created');
-    return product;
+    return ProductDto.from(product);
   }
 
   async update(id: string, data: UpdateProductDto) {

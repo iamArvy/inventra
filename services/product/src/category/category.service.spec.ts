@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryService } from './category.service';
-import { CategoryRepository } from 'src/db/repository';
 import { mockCategoryRepo } from 'src/common/mocks';
+import { CategoryRepository } from './category.repository';
 
 describe('CategoryService', () => {
   let service: CategoryService;

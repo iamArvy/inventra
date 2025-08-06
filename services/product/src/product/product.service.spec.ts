@@ -1,15 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductService } from './product.service';
-import {
-  ProductRepository,
-  StoreRepository,
-  VariantRepository,
-} from 'src/db/repository';
-import {
-  mockProductRepo,
-  mockStoreRepo,
-  mockVariantRepo,
-} from 'src/common/mocks';
+import { mockProductRepo } from 'src/common/mocks';
+import { ProductRepository } from './product.repository';
 
 describe('ProductService', () => {
   let service: ProductService;
@@ -22,14 +14,6 @@ describe('ProductService', () => {
         {
           provide: ProductRepository,
           useValue: mockProductRepo,
-        },
-        {
-          provide: VariantRepository,
-          useValue: mockVariantRepo,
-        },
-        {
-          provide: StoreRepository,
-          useValue: mockStoreRepo,
         },
       ],
     }).compile();
