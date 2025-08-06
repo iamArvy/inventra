@@ -6,6 +6,7 @@ import {
   HealthImplementation,
   protoPath as healthCheckProtoPath,
 } from 'grpc-health-check';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -45,6 +46,24 @@ async function bootstrap() {
       // }
     }),
   );
+
+  app.enableCors();
+  const config = new DocumentBuilder()
+    .setTitle('Product Microservice API')
+    .setDescription('Inventra Product Microservice')
+    .setVersion('1.0')
+    .setContact(
+      'Oluwaseyi Oke',
+      'https://iamarvy.netlify.app',
+      'iamarvy.tech@gmail.com',
+    )
+    .setVersion('1.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory, {
+    jsonDocumentUrl: 'swagger/json',
+  });
+
   await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3001);
 }

@@ -6,12 +6,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   const config = new DocumentBuilder()
-    .setTitle('Emporium Store Dashboard API')
-    .setDescription('Emporium Store Dashboard API')
+    .setTitle('Inventra Store Dashboard API')
+    .setDescription('Inventra Store Dashboard API')
     .setVersion('1.0')
     .addBearerAuth()
     .setContact(
-      'iamArvy',
+      'Oluwaseyi Oke',
       'https://iamarvy.netlify.app',
       'iamarvy.tech@gmail.com',
     )
