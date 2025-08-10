@@ -27,9 +27,13 @@ function mapHttpStatusToGrpcCode(httpStatus: number): status {
   }
 }
 
-export async function runRpcMethod<T>(promise: Promise<T>): Promise<T> {
+export async function runRpcMethod<T>(
+  promise: Promise<T>,
+  key?: string,
+): Promise<T | { [k: string]: T }> {
   try {
-    return await promise;
+    const result = await promise;
+    return (key ? { [key]: result } : result) as T | { [k: string]: T };
   } catch (error: unknown) {
     if (error instanceof RpcException) {
       throw error;

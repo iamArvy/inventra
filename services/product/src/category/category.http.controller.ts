@@ -8,14 +8,14 @@ import {
   Put,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CategoryInput, PartialCategoryInput } from './dto';
+import { CreateCategoryDto, PartialCategoryInput } from './dto';
 
 @Controller('categories')
 export class CategoryHttpController {
   constructor(private readonly service: CategoryService) {}
 
   @Put('create/store/:id')
-  create(@Param('id') id: string, @Body() data: CategoryInput) {
+  create(@Param('id') id: string, @Body() data: CreateCategoryDto) {
     return this.service.create(id, data);
   }
 

@@ -18,7 +18,7 @@ export class Product {
   @Prop({ type: String, required: true })
   sku: string;
 
-  @Prop({ type: String, ref: 'Store', required: true })
+  @Prop({ type: String, required: true })
   store_id: string;
 
   @Prop({
@@ -26,7 +26,7 @@ export class Product {
     ref: 'Category',
     required: true,
   })
-  category_id: Category;
+  category: Category;
 
   @Prop({ type: [String], default: [] })
   tags: string[];
@@ -45,3 +45,14 @@ export class Product {
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
+
+ProductSchema.index({ sku: 1, store_id: 1 }, { unique: true });
+ProductSchema.index({ deletedAt: 1 });
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ store_id: 1 });
+ProductSchema.index(
+  { name: 'text', description: 'text' },
+  { weights: { name: 10, description: 5 }, name: 'ProductTextIndex' },
+);
+ProductSchema.index({ price: 1 });
+ProductSchema.index({ stock: 1 });

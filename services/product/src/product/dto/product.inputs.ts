@@ -1,7 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateInput, ListInput, UpdateInput } from 'common/dto';
-import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { FilterParams } from 'src/common/types/filter-params';
+import { CreateProductDto } from './create-product.dto';
+import { UpdateProductDto } from './update-product.dto';
 
 export class ProductInput {
   name: string;

@@ -23,37 +23,39 @@ export class ProductGrpcController {
 
   @GrpcMethod('ProductService')
   get({ id }: IdInput) {
-    return runRpcMethod<ProductDto>(this.service.get(id));
+    return runRpcMethod<ProductDto>(this.service.get(id), 'product');
   }
 
   @GrpcMethod('ProductService')
   listStoreProducts({ id, params }: ListProductByRelationInput) {
-    return runRpcMethod<{ products: ProductDto[] }>(
+    return runRpcMethod<ProductDto[]>(
       this.service.listStoreProducts(id, params),
     );
   }
 
   @GrpcMethod('ProductService')
   listCategoryProducts({ id, params }: ListProductByRelationInput) {
-    return runRpcMethod<{ products: ProductDto[] }>(
+    return runRpcMethod<ProductDto[]>(
       this.service.listProductsByCategory(id, params),
+      'products',
     );
   }
 
   @GrpcMethod('ProductService')
   list(data: FilterParams) {
-    return runRpcMethod<{ products: ProductDto[] }>(
+    return runRpcMethod<ProductDto[]>(
       this.service.listProducts(data),
+      'products',
     );
   }
 
   @GrpcMethod('ProductService')
   update({ id, data }: UpdateProductInput) {
-    return runRpcMethod<Status>(this.service.update(id, data));
+    return runRpcMethod<Status>(this.service.update(id, data), 'status');
   }
 
   @GrpcMethod('ProductService')
   delete({ id }: IdInput) {
-    return runRpcMethod<Status>(this.service.delete(id));
+    return runRpcMethod<Status>(this.service.delete(id), 'status');
   }
 }

@@ -13,6 +13,7 @@ import { FilterParams } from 'src/common/types/filter-params';
 export class ProductRepository {
   constructor(@InjectModel(Product.name) private model: Model<Product>) {}
   create(store_id: string, data: CreateProductDto) {
+    console.log('Creating product with data:', store_id);
     return this.model.create({
       store_id,
       ...data,
@@ -36,7 +37,7 @@ export class ProductRepository {
       .exec();
   }
 
-  findByIdWithRelationships(
+  async findByIdWithRelationships(
     id: string,
     relationships: string[],
   ): Promise<Product> {
@@ -44,9 +45,8 @@ export class ProductRepository {
       throw new BadRequestException('Invalid product ID format');
     }
     return this.model
-      .findById(id, {
-        populate: relationships,
-      })
+      .findById(id)
+      .populate(relationships)
       .orFail(new NotFoundException('Product not found'))
       .exec();
   }

@@ -1,4 +1,4 @@
-import { UpdateProductDto, CreateProductDto } from './dto';
+import { UpdateProductDto, CreateProductDto, ProductDto } from './dto';
 import {
   Body,
   Controller,
@@ -11,13 +11,24 @@ import {
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { FilterParams } from 'src/common/types/filter-params';
+import { ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductHttpController {
   constructor(private readonly service: ProductService) {}
 
-  @Put('create')
-  create(@Param('id') id: string, @Body() data: CreateProductDto) {
+  @ApiOkResponse({
+    description: 'Create a new product',
+    type: ProductDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Category not found',
+  })
+  @Put('store/:id/create')
+  create(
+    @Param('id') id: string,
+    @Body() data: CreateProductDto,
+  ): Promise<ProductDto> {
     return this.service.create(id, data);
   }
 
